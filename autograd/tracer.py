@@ -3,11 +3,12 @@ from collections import defaultdict
 from contextlib import contextmanager
 
 from .util import subvals, toposort
-from .wrap_util import wraps
+from functools import wraps
 
 
 def trace(start_node, fun, x):
     with trace_stack.new_trace() as t:
+        print("new trace")
         start_box = new_box(x, t, start_node)
         end_box = fun(start_box)
         if isbox(end_box) and end_box._trace == start_box._trace:
@@ -21,10 +22,10 @@ class Node:
     __slots__ = []
 
     def __init__(self, value, fun, args, kwargs, parent_argnums, parents):
-        assert False
+        pass
 
     def initialize_root(self, *args, **kwargs):
-        assert False
+        pass
 
     @classmethod
     def new_root(cls, *args, **kwargs):
@@ -42,13 +43,15 @@ def primitive(f_raw):
     def f_wrapped(*args, **kwargs):
         boxed_args, trace, node_constructor = find_top_boxed_args(args)
         if boxed_args:
-            argvals = subvals(args, [(argnum, box._value) for argnum, box in boxed_args])
+            argvals = subvals(args, [(argnum, box._value)
+                                     for argnum, box in boxed_args])
             if f_wrapped in notrace_primitives[node_constructor]:
                 return f_wrapped(*argvals, **kwargs)
             parents = tuple(box._node for _, box in boxed_args)
             argnums = tuple(argnum for argnum, _ in boxed_args)
             ans = f_wrapped(*argvals, **kwargs)
-            node = node_constructor(ans, f_wrapped, argvals, kwargs, argnums, parents)
+            node = node_constructor(ans, f_wrapped, argvals, kwargs, argnums,
+                                    parents)
             return new_box(ans, trace, node)
         else:
             return f_raw(*args, **kwargs)
@@ -66,6 +69,7 @@ def register_notrace(trace_type, primitive_fun):
 
 
 def notrace_primitive(f_raw):
+
     @wraps(f_raw)
     def f_wrapped(*args, **kwargs):
         argvals = map(getval, args)
@@ -92,6 +96,7 @@ def find_top_boxed_args(args):
 
 
 class TraceStack:
+
     def __init__(self):
         self.top = -1
 
@@ -142,5 +147,6 @@ def new_box(value, trace, node):
 
 
 box_types = Box.types
-isbox = lambda x: type(x) in box_types  # almost 3X faster than isinstance(x, Box)
+isbox = lambda x: type(
+    x) in box_types  # almost 3X faster than isinstance(x, Box)
 getval = lambda x: getval(x._value) if isbox(x) else x

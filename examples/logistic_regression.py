@@ -20,7 +20,8 @@ def training_loss(weights):
 
 
 # Build a toy dataset.
-inputs = np.array([[0.52, 1.12, 0.77], [0.88, -1.08, 0.15], [0.52, 0.06, -1.30], [0.74, -2.49, 1.39]])
+inputs = np.array([[0.52, 1.12, 0.77], [0.88, -1.08, 0.15],
+                   [0.52, 0.06, -1.30], [0.74, -2.49, 1.39]])
 targets = np.array([True, True, False, True])
 
 # Build a function that returns gradients of training loss using autograd.

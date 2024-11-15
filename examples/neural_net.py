@@ -76,7 +76,8 @@ if __name__ == "__main__":
     # Define training objective
     def objective(params, iter):
         idx = batch_indices(iter)
-        return -log_posterior(params, train_images[idx], train_labels[idx], L2_reg)
+        return -log_posterior(params, train_images[idx], train_labels[idx],
+                              L2_reg)
 
     # Get gradient of objective using autograd.
     objective_grad = grad(objective)

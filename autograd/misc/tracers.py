@@ -1,9 +1,8 @@
-from functools import partial
+from functools import partial, wraps
 from itertools import repeat
 
 from autograd.tracer import Node, trace
 from autograd.util import subvals, toposort
-from autograd.wrap_util import wraps
 
 
 class ConstGraphNode(Node):
@@ -13,7 +12,8 @@ class ConstGraphNode(Node):
         args = subvals(args, zip(parent_argnums, repeat(None)))
 
         def partial_fun(partial_args):
-            return fun(*subvals(args, zip(parent_argnums, partial_args)), **kwargs)
+            return fun(*subvals(args, zip(parent_argnums, partial_args)),
+                       **kwargs)
 
         self.parents = parents
         self.partial_fun = partial_fun

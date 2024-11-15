@@ -54,11 +54,10 @@ defvjp(inv, grad_inv)
 
 def grad_pinv(ans, x):
     # https://mathoverflow.net/questions/25778/analytical-formula-for-numerical-derivative-of-the-matrix-pseudo-inverse
-    return lambda g: T(
-        -_dot(_dot(ans, T(g)), ans)
-        + _dot(_dot(_dot(ans, T(ans)), g), anp.eye(x.shape[-2]) - _dot(x, ans))
-        + _dot(_dot(_dot(anp.eye(ans.shape[-2]) - _dot(ans, x), g), T(ans)), ans)
-    )
+    return lambda g: T(-_dot(_dot(ans, T(g)), ans) + _dot(
+        _dot(_dot(ans, T(ans)), g),
+        anp.eye(x.shape[-2]) - _dot(x, ans)) + _dot(
+            _dot(_dot(anp.eye(ans.shape[-2]) - _dot(ans, x), g), T(ans)), ans))
 
 
 defvjp(pinv, grad_pinv)
@@ -76,16 +75,17 @@ defvjp(solve, partial(grad_solve, 0), partial(grad_solve, 1))
 
 
 def norm_vjp(ans, x, ord=None, axis=None):
+
     def check_implemented():
         matrix_norm = (x.ndim == 2 and axis is None) or isinstance(axis, tuple)
 
         if matrix_norm:
             if not (ord is None or ord == "fro" or ord == "nuc"):
-                raise NotImplementedError(
-                    "Gradient of matrix norm not " "implemented for ord={}".format(ord)
-                )
+                raise NotImplementedError("Gradient of matrix norm not "
+                                          "implemented for ord={}".format(ord))
         elif not (ord is None or ord > 1):
-            raise NotImplementedError("Gradient of norm not " "implemented for ord={}".format(ord))
+            raise NotImplementedError("Gradient of norm not "
+                                      "implemented for ord={}".format(ord))
 
     if axis is None:
         expand = lambda a: a
@@ -93,7 +93,8 @@ def norm_vjp(ans, x, ord=None, axis=None):
         row_axis, col_axis = axis
         if row_axis > col_axis:
             row_axis = row_axis - 1
-        expand = lambda a: anp.expand_dims(anp.expand_dims(a, row_axis), col_axis)
+        expand = lambda a: anp.expand_dims(anp.expand_dims(a, row_axis),
+                                           col_axis)
     else:
         expand = lambda a: anp.expand_dims(a, axis=axis)
 
@@ -106,9 +107,11 @@ def norm_vjp(ans, x, ord=None, axis=None):
             if row_axis > col_axis:
                 row_axis = row_axis - 1
             # Roll matrix axes to the back
-            roll = lambda a: anp.rollaxis(anp.rollaxis(a, col_axis, a.ndim), row_axis, a.ndim - 1)
+            roll = lambda a: anp.rollaxis(anp.rollaxis(a, col_axis, a.ndim),
+                                          row_axis, a.ndim - 1)
             # Roll matrix axes to their original position
-            unroll = lambda a: anp.rollaxis(anp.rollaxis(a, a.ndim - 2, row_axis), a.ndim - 1, col_axis)
+            unroll = lambda a: anp.rollaxis(
+                anp.rollaxis(a, a.ndim - 2, row_axis), a.ndim - 1, col_axis)
 
     check_implemented()
 
@@ -125,7 +128,7 @@ def norm_vjp(ans, x, ord=None, axis=None):
             return g * uvt
         else:
             # see https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm
-            return expand(g / ans ** (ord - 1)) * x * anp.abs(x) ** (ord - 2)
+            return expand(g / ans**(ord - 1)) * x * anp.abs(x)**(ord - 2)
 
     return vjp
 
@@ -134,16 +137,17 @@ defvjp(norm, norm_vjp)
 
 
 def norm_jvp(g, ans, x, ord=None, axis=None):
+
     def check_implemented():
         matrix_norm = (x.ndim == 2 and axis is None) or isinstance(axis, tuple)
 
         if matrix_norm:
             if not (ord is None or ord == "fro" or ord == "nuc"):
-                raise NotImplementedError(
-                    "Gradient of matrix norm not " "implemented for ord={}".format(ord)
-                )
+                raise NotImplementedError("Gradient of matrix norm not "
+                                          "implemented for ord={}".format(ord))
         elif not (ord is None or ord > 1):
-            raise NotImplementedError("Gradient of norm not " "implemented for ord={}".format(ord))
+            raise NotImplementedError("Gradient of norm not "
+                                      "implemented for ord={}".format(ord))
 
     if axis is None:
         contract = lambda a: anp.sum(a)
@@ -159,9 +163,11 @@ def norm_jvp(g, ans, x, ord=None, axis=None):
             if row_axis > col_axis:
                 row_axis = row_axis - 1
             # Roll matrix axes to the back
-            roll = lambda a: anp.rollaxis(anp.rollaxis(a, col_axis, a.ndim), row_axis, a.ndim - 1)
+            roll = lambda a: anp.rollaxis(anp.rollaxis(a, col_axis, a.ndim),
+                                          row_axis, a.ndim - 1)
             # Roll matrix axes to their original position
-            unroll = lambda a: anp.rollaxis(anp.rollaxis(a, a.ndim - 2, row_axis), a.ndim - 1, col_axis)
+            unroll = lambda a: anp.rollaxis(
+                anp.rollaxis(a, a.ndim - 2, row_axis), a.ndim - 1, col_axis)
 
     check_implemented()
     if ord in (None, 2, "fro"):
@@ -175,7 +181,7 @@ def norm_jvp(g, ans, x, ord=None, axis=None):
         return contract(g * uvt)
     else:
         # see https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm
-        return contract(g * x * anp.abs(x) ** (ord - 2)) / ans ** (ord - 1)
+        return contract(g * x * anp.abs(x)**(ord - 2)) / ans**(ord - 1)
 
 
 defjvp(norm, norm_jvp)
@@ -212,7 +218,8 @@ def grad_eigh(ans, x, UPLO="L"):
         elif UPLO == "U":
             tri = anp.tile(anp.triu(anp.ones(N), 1), reps)
 
-        return anp.real(vjp_temp) * anp.eye(vjp_temp.shape[-1]) + (vjp_temp + anp.conj(T(vjp_temp))) * tri
+        return anp.real(vjp_temp) * anp.eye(
+            vjp_temp.shape[-1]) + (vjp_temp + anp.conj(T(vjp_temp))) * tri
 
     return vjp
 
@@ -234,7 +241,8 @@ def grad_eig(ans, x):
         f -= _diag(f)
         ut = anp.swapaxes(u, -1, -2)
         r1 = f * _dot(ut, gu)
-        r2 = -f * (_dot(_dot(ut, anp.conj(u)), anp.real(_dot(ut, gu)) * anp.eye(n)))
+        r2 = -f * (_dot(_dot(ut, anp.conj(u)),
+                        anp.real(_dot(ut, gu)) * anp.eye(n)))
         r = _dot(_dot(inv(ut), ge + r1 + r2), ut)
         if not anp.iscomplexobj(x):
             r = anp.real(r)
@@ -273,6 +281,7 @@ defvjp(cholesky, grad_cholesky)
 # https://j-towns.github.io/papers/svd-derivative.pdf
 # https://arxiv.org/abs/1909.02659
 def grad_svd(usv_, a, full_matrices=True, compute_uv=True):
+
     def vjp(g):
         usv = usv_
 
@@ -287,7 +296,8 @@ def grad_svd(usv_, a, full_matrices=True, compute_uv=True):
             return _dot(anp.conj(u) * g[..., anp.newaxis, :], T(v))
 
         elif full_matrices:
-            raise NotImplementedError("Gradient of svd not implemented for full_matrices=True")
+            raise NotImplementedError(
+                "Gradient of svd not implemented for full_matrices=True")
 
         else:
             u = usv[0]
@@ -298,9 +308,11 @@ def grad_svd(usv_, a, full_matrices=True, compute_uv=True):
 
             k = anp.min((m, n))
             # broadcastable identity array with shape (1, 1, ..., 1, k, k)
-            i = anp.reshape(anp.eye(k), anp.concatenate((anp.ones(a.ndim - 2, dtype=int), (k, k))))
+            i = anp.reshape(
+                anp.eye(k),
+                anp.concatenate((anp.ones(a.ndim - 2, dtype=int), (k, k))))
 
-            f = 1 / (s[..., anp.newaxis, :] ** 2 - s[..., :, anp.newaxis] ** 2 + i)
+            f = 1 / (s[..., anp.newaxis, :]**2 - s[..., :, anp.newaxis]**2 + i)
 
             gu = g[0]
             gs = g[1]
@@ -319,9 +331,11 @@ def grad_svd(usv_, a, full_matrices=True, compute_uv=True):
 
             if m < n:
                 i_minus_vvt = anp.reshape(
-                    anp.eye(n), anp.concatenate((anp.ones(a.ndim - 2, dtype=int), (n, n)))
-                ) - _dot(v, anp.conj(T(v)))
-                t1 = t1 + anp.conj(_dot(_dot(u / s[..., anp.newaxis, :], T(gv)), i_minus_vvt))
+                    anp.eye(n),
+                    anp.concatenate((anp.ones(a.ndim - 2, dtype=int),
+                                     (n, n)))) - _dot(v, anp.conj(T(v)))
+                t1 = t1 + anp.conj(
+                    _dot(_dot(u / s[..., anp.newaxis, :], T(gv)), i_minus_vvt))
 
                 return t1
 
@@ -330,9 +344,11 @@ def grad_svd(usv_, a, full_matrices=True, compute_uv=True):
 
             elif m > n:
                 i_minus_uut = anp.reshape(
-                    anp.eye(m), anp.concatenate((anp.ones(a.ndim - 2, dtype=int), (m, m)))
-                ) - _dot(u, anp.conj(T(u)))
-                t1 = t1 + T(_dot(_dot(v / s[..., anp.newaxis, :], T(gu)), i_minus_uut))
+                    anp.eye(m),
+                    anp.concatenate((anp.ones(a.ndim - 2, dtype=int),
+                                     (m, m)))) - _dot(u, anp.conj(T(u)))
+                t1 = t1 + T(
+                    _dot(_dot(v / s[..., anp.newaxis, :], T(gu)), i_minus_uut))
 
                 return t1
 

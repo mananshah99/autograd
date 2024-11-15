@@ -25,19 +25,25 @@ def grad_beta_logpdf_arg2(x, a, b):
 defvjp(
     cdf,
     lambda ans, x, a, b: unbroadcast_f(
-        x, lambda g: g * np.power(x, a - 1) * np.power(1 - x, b - 1) / beta(a, b)
-    ),
+        x, lambda g: g * np.power(x, a - 1) * np.power(1 - x, b - 1) / beta(
+            a, b)),
     argnums=[0],
 )
 defvjp(
     logpdf,
-    lambda ans, x, a, b: unbroadcast_f(x, lambda g: g * grad_beta_logpdf_arg0(x, a, b)),
-    lambda ans, x, a, b: unbroadcast_f(a, lambda g: g * grad_beta_logpdf_arg1(x, a, b)),
-    lambda ans, x, a, b: unbroadcast_f(b, lambda g: g * grad_beta_logpdf_arg2(x, a, b)),
+    lambda ans, x, a, b: unbroadcast_f(
+        x, lambda g: g * grad_beta_logpdf_arg0(x, a, b)),
+    lambda ans, x, a, b: unbroadcast_f(
+        a, lambda g: g * grad_beta_logpdf_arg1(x, a, b)),
+    lambda ans, x, a, b: unbroadcast_f(
+        b, lambda g: g * grad_beta_logpdf_arg2(x, a, b)),
 )
 defvjp(
     pdf,
-    lambda ans, x, a, b: unbroadcast_f(x, lambda g: g * ans * grad_beta_logpdf_arg0(x, a, b)),
-    lambda ans, x, a, b: unbroadcast_f(a, lambda g: g * ans * grad_beta_logpdf_arg1(x, a, b)),
-    lambda ans, x, a, b: unbroadcast_f(b, lambda g: g * ans * grad_beta_logpdf_arg2(x, a, b)),
+    lambda ans, x, a, b: unbroadcast_f(
+        x, lambda g: g * ans * grad_beta_logpdf_arg0(x, a, b)),
+    lambda ans, x, a, b: unbroadcast_f(
+        a, lambda g: g * ans * grad_beta_logpdf_arg1(x, a, b)),
+    lambda ans, x, a, b: unbroadcast_f(
+        b, lambda g: g * ans * grad_beta_logpdf_arg2(x, a, b)),
 )

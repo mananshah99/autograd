@@ -38,11 +38,11 @@ def check_vjp(f, x):
     assert vspace(vjp_y) == x_vs
     vjv_exact = x_vs.inner_prod(x_v, vjp_y)
     vjv_numeric = y_vs.inner_prod(y_v, jvp(x_v))
-    assert scalar_close(vjv_numeric, vjv_exact), (
-        "Derivative (VJP) check of {} failed with arg {}:\n" "analytic: {}\nnumeric:  {}".format(
-            get_name(f), x, vjv_exact, vjv_numeric
-        )
-    )
+    assert scalar_close(
+        vjv_numeric,
+        vjv_exact), ("Derivative (VJP) check of {} failed with arg {}:\n"
+                     "analytic: {}\nnumeric:  {}".format(
+                         get_name(f), x, vjv_exact, vjv_numeric))
 
 
 def check_jvp(f, x):
@@ -56,7 +56,9 @@ def check_equivalent(x, y):
     x_vs, y_vs = vspace(x), vspace(y)
     assert x_vs == y_vs, f"VSpace mismatch:\nx: {x_vs}\ny: {y_vs}"
     v = x_vs.randn()
-    assert scalar_close(x_vs.inner_prod(x, v), x_vs.inner_prod(y, v)), f"Value mismatch:\nx: {x}\ny: {y}"
+    assert scalar_close(x_vs.inner_prod(x, v),
+                        x_vs.inner_prod(y,
+                                        v)), f"Value mismatch:\nx: {x}\ny: {y}"
 
 
 @unary_to_nary

@@ -106,7 +106,7 @@ def test_arctan():
 
 def test_arccosh():
     fun = lambda x: 3.0 * np.arccosh(x)
-    check_grads(fun)(npr.randn() ** 2 + 1.2)
+    check_grads(fun)(npr.randn()**2 + 1.2)
 
 
 def test_arcsinh():
@@ -127,8 +127,8 @@ def test_sqrt():
 def test_power_arg0():
     # the +1.'s here are to avoid regimes where numerical diffs fail
     make_fun = lambda y: lambda x: np.power(x, y)
-    fun = make_fun(npr.randn() ** 2 + 1.0)
-    check_grads(fun)(npr.rand() ** 2 + 1.0)
+    fun = make_fun(npr.randn()**2 + 1.0)
+    check_grads(fun)(npr.rand()**2 + 1.0)
 
     # test y == 0. as a special case, c.f. #116
     fun = make_fun(0.0)
@@ -137,14 +137,14 @@ def test_power_arg0():
 
 
 def test_power_arg1():
-    x = npr.randn() ** 2
+    x = npr.randn()**2
     fun = lambda y: np.power(x, y)
-    check_grads(fun)(npr.rand() ** 2)
+    check_grads(fun)(npr.rand()**2)
 
 
 def test_power_arg1_zero():
     fun = lambda y: np.power(0.0, y)
-    check_grads(fun)(npr.rand() ** 2)
+    check_grads(fun)(npr.rand()**2)
 
 
 def test_mod_arg0():

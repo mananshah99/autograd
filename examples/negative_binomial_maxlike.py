@@ -17,7 +17,8 @@ def newton(f, x0):
 
 def negbin_loglike(r, p, x):
     # the negative binomial log likelihood we want to maximize
-    return gammaln(r + x) - gammaln(r) - gammaln(x + 1) + x * np.log(p) + r * np.log(1 - p)
+    return gammaln(r + x) - gammaln(r) - gammaln(
+        x + 1) + x * np.log(p) + r * np.log(1 - p)
 
 
 def negbin_sample(r, p, size):
@@ -27,7 +28,8 @@ def negbin_sample(r, p, size):
 
 def fit_maxlike(x, r_guess):
     # follows Wikipedia's section on negative binomial max likelihood
-    assert np.var(x) > np.mean(x), "Likelihood-maximizing parameters don't exist!"
+    assert np.var(x) > np.mean(
+        x), "Likelihood-maximizing parameters don't exist!"
     loglike = lambda r, p: np.sum(negbin_loglike(r, p, x))
     p = lambda r: np.sum(x) / np.sum(r + x)
     rprime = lambda r: grad(loglike)(r, p(r))
@@ -56,9 +58,14 @@ if __name__ == "__main__":
 
     xm = data.max()
     plt.figure()
-    plt.hist(data, bins=np.arange(xm + 1) - 0.5, normed=True, label="normed data counts")
+    plt.hist(data,
+             bins=np.arange(xm + 1) - 0.5,
+             normed=True,
+             label="normed data counts")
     plt.xlim(0, xm)
-    plt.plot(np.arange(xm), np.exp(negbin_loglike(r, p, np.arange(xm))), label="maxlike fit")
+    plt.plot(np.arange(xm),
+             np.exp(negbin_loglike(r, p, np.arange(xm))),
+             label="maxlike fit")
     plt.xlabel("k")
     plt.ylabel("p(k)")
     plt.legend(loc="best")

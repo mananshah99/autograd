@@ -47,16 +47,19 @@ def check_vspace(value):
         return vector_close(zeros(), add(x, scalar_mul(x, -1.0)))
 
     def compatibility_of_scalar_mul_with_field_mul(x, a, b):
-        return vector_close(scalar_mul(x, a * b), scalar_mul(scalar_mul(x, a), b))
+        return vector_close(scalar_mul(x, a * b),
+                            scalar_mul(scalar_mul(x, a), b))
 
     def identity_element_of_scalar_mul(x):
         return vector_close(scalar_mul(x, 1.0), x)
 
     def distributivity_of_scalar_mul_wrt_vector_add(x, y, a):
-        return vector_close(scalar_mul(add(x, y), a), add(scalar_mul(x, a), scalar_mul(y, a)))
+        return vector_close(scalar_mul(add(x, y), a),
+                            add(scalar_mul(x, a), scalar_mul(y, a)))
 
     def distributivity_of_scalar_mul_wrt_scalar_add(x, a, b):
-        return vector_close(scalar_mul(x, a + b), add(scalar_mul(x, a), scalar_mul(x, b)))
+        return vector_close(scalar_mul(x, a + b),
+                            add(scalar_mul(x, a), scalar_mul(x, b)))
 
     # --- closure ---
     def add_preserves_vspace(x, y):
@@ -70,7 +73,8 @@ def check_vspace(value):
         return scalar_close(inner_prod(x, y), inner_prod(y, x))
 
     def linearity(x, y, a):
-        return scalar_close(inner_prod(scalar_mul(x, a), y), a * inner_prod(x, y))
+        return scalar_close(inner_prod(scalar_mul(x, a), y),
+                            a * inner_prod(x, y))
 
     def positive_definitive(x):
         return 0 < inner_prod(x, x)
@@ -80,12 +84,11 @@ def check_vspace(value):
 
     # --- basis vectors and special vectors---
     def basis_orthonormality():
-        return all(
-            [
-                scalar_close(inner_prod(x, y), 1.0 * (ix == iy))
-                for (ix, x), (iy, y) in it.product(enumerate(standard_basis()), enumerate(standard_basis()))
-            ]
-        )
+        return all([
+            scalar_close(inner_prod(x, y), 1.0 * (ix == iy))
+            for (ix, x), (iy, y) in it.product(enumerate(standard_basis()),
+                                               enumerate(standard_basis()))
+        ])
 
     def ones_sum_of_basis_vects():
         return vector_close(reduce(add, standard_basis()), ones())
@@ -111,8 +114,10 @@ def check_vspace(value):
     assert inverse_elements_of_add(randn())
     assert compatibility_of_scalar_mul_with_field_mul(randn(), *rand_scalars())
     assert identity_element_of_scalar_mul(randn())
-    assert distributivity_of_scalar_mul_wrt_vector_add(randn(), randn(), rand_scalar())
-    assert distributivity_of_scalar_mul_wrt_scalar_add(randn(), *rand_scalars())
+    assert distributivity_of_scalar_mul_wrt_vector_add(randn(), randn(),
+                                                       rand_scalar())
+    assert distributivity_of_scalar_mul_wrt_scalar_add(randn(),
+                                                       *rand_scalars())
     assert add_preserves_vspace(*randns())
     assert scalar_mul_preserves_vspace(randn(), rand_scalar())
     assert symmetry(*randns())

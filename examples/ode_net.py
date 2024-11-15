@@ -1,7 +1,6 @@
 # A demo of gradients through scipy.integrate.odeint,
 # estimating the dynamics of a system given a trajectory.
 
-
 import matplotlib.pyplot as plt
 import numpy as npo
 
@@ -42,7 +41,7 @@ def init_nn_params(scale, layer_sizes, rs=npr.RandomState(0)):
 
 # Define neural ODE model.
 def ode_pred(params, y0, t):
-    return odeint(nn_predict, y0, t, tuple((params,)), rtol=0.01)
+    return odeint(nn_predict, y0, t, tuple((params, )), rtol=0.01)
 
 
 def L1_loss(pred, targets):
@@ -54,7 +53,7 @@ if __name__ == "__main__":
     true_y0 = np.array([2.0, 0.0]).T
     t = np.linspace(0.0, max_T, N)
     true_A = np.array([[-0.1, 2.0], [-2.0, -0.1]])
-    true_y = odeint(func, true_y0, t, args=(true_A,))
+    true_y = odeint(func, true_y0, t, args=(true_A, ))
 
     def train_loss(params, iter):
         pred = ode_pred(params, true_y0, t)
@@ -105,12 +104,17 @@ if __name__ == "__main__":
 
         # vector field plot
         y, x = npo.mgrid[-2:2:21j, -2:2:21j]
-        dydt = nn_predict(np.stack([x, y], -1).reshape(21 * 21, 2), 0, params).reshape(-1, 2)
-        mag = np.sqrt(dydt[:, 0] ** 2 + dydt[:, 1] ** 2).reshape(-1, 1)
+        dydt = nn_predict(np.stack([x, y], -1).reshape(21 * 21, 2), 0,
+                          params).reshape(-1, 2)
+        mag = np.sqrt(dydt[:, 0]**2 + dydt[:, 1]**2).reshape(-1, 1)
         dydt = dydt / mag
         dydt = dydt.reshape(21, 21, 2)
 
-        ax_vecfield.streamplot(x, y, dydt[:, :, 0], dydt[:, :, 1], color="black")
+        ax_vecfield.streamplot(x,
+                               y,
+                               dydt[:, :, 0],
+                               dydt[:, :, 1],
+                               color="black")
         ax_vecfield.set_xlim(-2, 2)
         ax_vecfield.set_ylim(-2, 2)
 
@@ -120,4 +124,7 @@ if __name__ == "__main__":
 
     # Train neural net dynamics to match data.
     init_params = init_nn_params(0.1, layer_sizes=[D, 150, D])
-    optimized_params = adam(grad(train_loss), init_params, num_iters=1000, callback=callback)
+    optimized_params = adam(grad(train_loss),
+                            init_params,
+                            num_iters=1000,
+                            callback=callback)

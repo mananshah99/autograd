@@ -16,7 +16,8 @@ class RNNSuite:
         self.batch_size = 16
         self.dtype = "float32"
         self.D = 2**10
-        self.x = 0.01 * np.random.randn(self.batch_size, self.D).astype(self.dtype)
+        self.x = 0.01 * np.random.randn(self.batch_size, self.D).astype(
+            self.dtype)
         self.W1 = 0.01 * np.random.randn(self.D, self.D).astype(self.dtype)
         self.b1 = 0.01 * np.random.randn(self.D).astype(self.dtype)
         self.Wout = 0.01 * np.random.randn(self.D, 1).astype(self.dtype)
@@ -30,14 +31,16 @@ class RNNSuite:
             for i in range(n):
                 h1 = np.tanh(np.dot(h1, W) + b)
             logit = np.dot(h1, Wout) + bout
-            loss = -np.sum(label * logit - (logit + np.log(1 + np.exp(-logit))))
+            loss = -np.sum(label * logit -
+                           (logit + np.log(1 + np.exp(-logit))))
             return loss
 
         self.fn = autograd_rnn
         self.grad_fn = grad(self.fn)
 
     def rnn_grad(self):
-        self.grad_fn((self.W1, self.b1, self.Wout, self.bout), self.x, self.l, self.n)
+        self.grad_fn((self.W1, self.b1, self.Wout, self.bout), self.x, self.l,
+                     self.n)
 
     def time_rnn_grad(self):
         self.rnn_grad()
@@ -52,6 +55,7 @@ class RNNSuite:
         self.manual_rnn_grad()
 
     def manual_rnn_grad(self):
+
         def repeat_to_match_shape(g, A, axis=None):
             gout = np.empty_like(A)
             if np.ndim(gout) == 0:
@@ -61,7 +65,10 @@ class RNNSuite:
             return gout
 
         def sum_to_match_shape(sum_this, to_match_this):
-            sum_this = np.sum(sum_this, axis=tuple(range(0, np.ndim(sum_this) - np.ndim(to_match_this))))
+            sum_this = np.sum(
+                sum_this,
+                axis=tuple(range(0,
+                                 np.ndim(sum_this) - np.ndim(to_match_this))))
             for axis, size in enumerate(np.shape(to_match_this)):
                 if size == 1:
                     sum_this = np.sum(sum_this, axis=axis, keepdims=True)
@@ -146,7 +153,7 @@ class RNNSuite:
             _for1 = reversed(_for1)
             for i in _for1:
                 h1 = h1_stack.pop()
-                tmp_g0 = g_h1 / np.cosh(h1__0) ** 2.0
+                tmp_g0 = g_h1 / np.cosh(h1__0)**2.0
                 g_h1 = 0
                 g_h1__0 += tmp_g0
                 h1__0 = h1__0_stack.pop()
@@ -163,5 +170,6 @@ class RNNSuite:
                 g_W += tmp_g4
             return g_W, g_b, g_Wout, g_bout
 
-        _rnn_grad(self.x, self.W1, self.b1, self.Wout, self.bout, self.l, self.n)
+        _rnn_grad(self.x, self.W1, self.b1, self.Wout, self.bout, self.l,
+                  self.n)
         pass

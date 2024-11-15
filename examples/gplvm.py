@@ -10,7 +10,6 @@
 #
 # David Duvenaud (duvenaud@gmail.com)
 
-
 import matplotlib.pyplot as plt
 from data import make_pinwheel
 from gaussian_process import make_gp_funs, rbf_covariance
@@ -27,25 +26,31 @@ if __name__ == "__main__":
 
     # Build model and objective function.
     params_per_gp, predict, log_marginal_likelihood = make_gp_funs(
-        rbf_covariance, num_cov_params=latent_dimension + 1
-    )
+        rbf_covariance, num_cov_params=latent_dimension + 1)
     total_gp_params = data_dimension * params_per_gp
 
-    data = make_pinwheel(radial_std=0.3, tangential_std=0.05, num_classes=3, num_per_class=30, rate=0.4)
+    data = make_pinwheel(radial_std=0.3,
+                         tangential_std=0.05,
+                         num_classes=3,
+                         num_per_class=30,
+                         rate=0.4)
     datalen = data.shape[0]
 
     num_latent_params = datalen * latent_dimension
 
     def unpack_params(params):
-        gp_params = np.reshape(params[:total_gp_params], (data_dimension, params_per_gp))
-        latents = np.reshape(params[total_gp_params:], (datalen, latent_dimension))
+        gp_params = np.reshape(params[:total_gp_params],
+                               (data_dimension, params_per_gp))
+        latents = np.reshape(params[total_gp_params:],
+                             (datalen, latent_dimension))
         return gp_params, latents
 
     def objective(params):
         gp_params, latents = unpack_params(params)
-        gp_likelihood = sum(
-            [log_marginal_likelihood(gp_params[i], latents, data[:, i]) for i in range(data_dimension)]
-        )
+        gp_likelihood = sum([
+            log_marginal_likelihood(gp_params[i], latents, data[:, i])
+            for i in range(data_dimension)
+        ])
         latent_prior_likelihood = np.sum(norm.logpdf(latents))
         return -gp_likelihood - latent_prior_likelihood
 
@@ -81,4 +86,8 @@ if __name__ == "__main__":
     init_params = rs.randn(total_gp_params + num_latent_params) * 0.1
 
     print("Optimizing covariance parameters and latent variable locations...")
-    minimize(value_and_grad(objective), init_params, jac=True, method="CG", callback=callback)
+    minimize(value_and_grad(objective),
+             init_params,
+             jac=True,
+             method="CG",
+             callback=callback)

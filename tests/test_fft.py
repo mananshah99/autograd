@@ -13,6 +13,7 @@ check_grads = partial(check_grads, modes=["rev"])
 
 
 def test_fft():
+
     def fun(x):
         return np.fft.fft(x)
 
@@ -22,6 +23,7 @@ def test_fft():
 
 
 def test_fft_ortho():
+
     def fun(x):
         return np.fft.fft(x, norm="ortho")
 
@@ -31,6 +33,7 @@ def test_fft_ortho():
 
 
 def test_fft_axis():
+
     def fun(x):
         return np.fft.fft(x, axis=0)
 
@@ -48,6 +51,7 @@ def match_complex(fft_fun, mat):
 
 
 def check_fft_n(fft_fun, D, n):
+
     def fun(x):
         return fft_fun(x, D + n)
 
@@ -89,6 +93,7 @@ def test_irfft_n_bigger():
 
 
 def check_fft_s(fft_fun, D):
+
     def fun(x):
         return fft_fun(x, s=s, axes=axes)
 
@@ -145,6 +150,7 @@ def test_irfftn_s():
 
 
 def test_ifft():
+
     def fun(x):
         return np.fft.ifft(x)
 
@@ -154,6 +160,7 @@ def test_ifft():
 
 
 def test_fft2():
+
     def fun(x):
         return np.fft.fft2(x)
 
@@ -163,6 +170,7 @@ def test_fft2():
 
 
 def test_ifft2():
+
     def fun(x):
         return np.fft.ifft2(x)
 
@@ -172,6 +180,7 @@ def test_ifft2():
 
 
 def test_fftn():
+
     def fun(x):
         return np.fft.fftn(x)
 
@@ -181,6 +190,7 @@ def test_fftn():
 
 
 def test_ifftn():
+
     def fun(x):
         return np.fft.ifftn(x)
 
@@ -190,6 +200,7 @@ def test_ifftn():
 
 
 def test_rfft():
+
     def fun(x):
         return np.fft.rfft(x)
 
@@ -199,6 +210,7 @@ def test_rfft():
 
 
 def test_rfft_ortho():
+
     def fun(x):
         return np.fft.rfft(x, norm="ortho")
 
@@ -208,6 +220,7 @@ def test_rfft_ortho():
 
 
 def test_rfft_axes():
+
     def fun(x):
         return np.fft.rfft(x, axis=0)
 
@@ -217,6 +230,7 @@ def test_rfft_axes():
 
 
 def test_irfft():
+
     def fun(x):
         return np.fft.irfft(x)
 
@@ -228,6 +242,7 @@ def test_irfft():
 
 
 def test_irfft_ortho():
+
     def fun(x):
         return np.fft.irfft(x, norm="ortho")
 
@@ -239,6 +254,7 @@ def test_irfft_ortho():
 
 
 def test_rfft2():
+
     def fun(x):
         return np.fft.rfft2(x)
 
@@ -248,6 +264,7 @@ def test_rfft2():
 
 
 def test_irfft2():
+
     def fun(x):
         return np.fft.irfft2(x)
 
@@ -259,6 +276,7 @@ def test_irfft2():
 
 
 def test_rfftn():
+
     def fun(x):
         return np.fft.rfftn(x)
 
@@ -268,6 +286,7 @@ def test_rfftn():
 
 
 def test_rfftn_odd_not_implemented():
+
     def fun(x):
         return np.fft.rfftn(x)
 
@@ -278,6 +297,7 @@ def test_rfftn_odd_not_implemented():
 
 
 def test_rfftn_subset():
+
     def fun(x):
         return np.fft.rfftn(x)[(0, 1, 0), (3, 3, 2)]
 
@@ -287,6 +307,7 @@ def test_rfftn_subset():
 
 
 def test_rfftn_axes():
+
     def fun(x):
         return np.fft.rfftn(x, axes=(0, 2))
 
@@ -296,6 +317,7 @@ def test_rfftn_axes():
 
 
 def test_irfftn():
+
     def fun(x):
         return np.fft.irfftn(x)
 
@@ -307,6 +329,7 @@ def test_irfftn():
 
 
 def test_irfftn_subset():
+
     def fun(x):
         return np.fft.irfftn(x)[(0, 1, 0), (3, 3, 2)]
 
@@ -318,6 +341,7 @@ def test_irfftn_subset():
 
 
 def test_fftshift():
+
     def fun(x):
         return np.fft.fftshift(x)
 
@@ -327,6 +351,7 @@ def test_fftshift():
 
 
 def test_fftshift_even():
+
     def fun(x):
         return np.fft.fftshift(x)
 
@@ -336,6 +361,7 @@ def test_fftshift_even():
 
 
 def test_fftshift_axes():
+
     def fun(x):
         return np.fft.fftshift(x, axes=1)
 
@@ -345,6 +371,7 @@ def test_fftshift_axes():
 
 
 def test_ifftshift():
+
     def fun(x):
         return np.fft.ifftshift(x)
 
@@ -354,6 +381,7 @@ def test_ifftshift():
 
 
 def test_ifftshift_even():
+
     def fun(x):
         return np.fft.ifftshift(x)
 
@@ -363,6 +391,7 @@ def test_ifftshift_even():
 
 
 def test_ifftshift_axes():
+
     def fun(x):
         return np.fft.ifftshift(x, axes=1)
 

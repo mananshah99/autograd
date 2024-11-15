@@ -4,6 +4,7 @@ from autograd.builtins import isinstance
 
 
 def test_isinstance():
+
     def checker(ex, type_, truthval):
         assert isinstance(ex, type_) == truthval
         return 1.0

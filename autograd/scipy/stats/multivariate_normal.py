@@ -25,8 +25,8 @@ def generalized_outer_product(x):
 def covgrad(x, mean, cov, allow_singular=False):
     if allow_singular:
         raise NotImplementedError(
-            "The multivariate normal pdf is not " "differentiable w.r.t. a singular covariance matix"
-        )
+            "The multivariate normal pdf is not "
+            "differentiable w.r.t. a singular covariance matix")
     J = np.linalg.inv(cov)
     solved = np.matmul(J, np.expand_dims(x - mean, -1))
     return 1.0 / 2 * (generalized_outer_product(solved) - J)
@@ -42,29 +42,34 @@ def solve(allow_singular):
 defvjp(
     logpdf,
     lambda ans, x, mean, cov, allow_singular=False: unbroadcast_f(
-        x, lambda g: -np.expand_dims(np.atleast_1d(g), 1) * solve(allow_singular)(cov, (x - mean).T).T
-    ),
+        x, lambda g: -np.expand_dims(np.atleast_1d(g), 1) * solve(
+            allow_singular)(cov, (x - mean).T).T),
     lambda ans, x, mean, cov, allow_singular=False: unbroadcast_f(
-        mean, lambda g: np.expand_dims(np.atleast_1d(g), 1) * solve(allow_singular)(cov, (x - mean).T).T
-    ),
+        mean, lambda g: np.expand_dims(np.atleast_1d(g), 1) * solve(
+            allow_singular)(cov, (x - mean).T).T),
     lambda ans, x, mean, cov, allow_singular=False: unbroadcast_f(
-        cov, lambda g: np.reshape(g, np.shape(g) + (1, 1)) * covgrad(x, mean, cov, allow_singular)
-    ),
+        cov, lambda g: np.reshape(g,
+                                  np.shape(g) + (1, 1)) * covgrad(
+                                      x, mean, cov, allow_singular)),
 )
 
 # Same as log pdf, but multiplied by the pdf (ans).
 defvjp(
     pdf,
     lambda ans, x, mean, cov, allow_singular=False: unbroadcast_f(
-        x, lambda g: -np.expand_dims(np.atleast_1d(ans * g), 1) * solve(allow_singular)(cov, (x - mean).T).T
-    ),
+        x, lambda g: -np.expand_dims(np.atleast_1d(ans * g), 1) * solve(
+            allow_singular)(cov, (x - mean).T).T),
     lambda ans, x, mean, cov, allow_singular=False: unbroadcast_f(
         mean,
-        lambda g: np.expand_dims(np.atleast_1d(ans * g), 1) * solve(allow_singular)(cov, (x - mean).T).T,
+        lambda g: np.expand_dims(np.atleast_1d(ans * g), 1) * solve(
+            allow_singular)(cov, (x - mean).T).T,
     ),
     lambda ans, x, mean, cov, allow_singular=False: unbroadcast_f(
-        cov, lambda g: np.reshape(ans * g, np.shape(g) + (1, 1)) * covgrad(x, mean, cov, allow_singular)
-    ),
+        cov, lambda g: np.reshape(ans * g,
+                                  np.shape(g) + (1, 1)) * covgrad(
+                                      x, mean, cov, allow_singular)),
 )
 
-defvjp(entropy, None, lambda ans, mean, cov: unbroadcast_f(cov, lambda g: 0.5 * g * np.linalg.inv(cov).T))
+defvjp(
+    entropy, None, lambda ans, mean, cov: unbroadcast_f(
+        cov, lambda g: 0.5 * g * np.linalg.inv(cov).T))

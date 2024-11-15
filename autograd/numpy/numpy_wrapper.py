@@ -14,6 +14,7 @@ notrace_functions = [_np.ndim, _np.shape, _np.iscomplexobj, _np.result_type]
 
 
 def wrap_intdtype(cls):
+
     class IntdtypeSubclass(cls):
         __new__ = notrace_primitive(cls.__new__)
 
@@ -45,7 +46,8 @@ def concatenate_args(axis, *args):
 
 
 concatenate = lambda arr_list, axis=0: concatenate_args(axis, *arr_list)
-vstack = row_stack = lambda tup: concatenate([atleast_2d(_m) for _m in tup], axis=0)
+vstack = row_stack = lambda tup: concatenate([atleast_2d(_m) for _m in tup],
+                                             axis=0)
 
 
 def hstack(tup):
@@ -76,8 +78,10 @@ def array(A, *args, **kwargs):
 def wrap_if_boxes_inside(raw_array, slow_op_name=None):
     if raw_array.dtype is _np.dtype("O"):
         if slow_op_name:
-            warnings.warn("{} is slow for array inputs. " "np.concatenate() is faster.".format(slow_op_name))
-        return array_from_args((), {}, *raw_array.ravel()).reshape(raw_array.shape)
+            warnings.warn("{} is slow for array inputs. "
+                          "np.concatenate() is faster.".format(slow_op_name))
+        return array_from_args((), {},
+                               *raw_array.ravel()).reshape(raw_array.shape)
     else:
         return raw_array
 
@@ -112,11 +116,12 @@ def stack(arrays, axis=0):
 
     result_ndim = arrays[0].ndim + 1
     if not -result_ndim <= axis < result_ndim:
-        raise IndexError("axis {0} out of bounds [-{1}, {1})".format(axis, result_ndim))
+        raise IndexError("axis {0} out of bounds [-{1}, {1})".format(
+            axis, result_ndim))
     if axis < 0:
         axis += result_ndim
 
-    sl = (slice(None),) * axis + (None,)
+    sl = (slice(None), ) * axis + (None, )
     return concatenate([arr[sl] for arr in arrays], axis=axis)
 
 
@@ -135,6 +140,7 @@ def append(arr, values, axis=None):
 
 
 class r_class:
+
     def __getitem__(self, args):
         raw_array = _np.r_[args]
         return wrap_if_boxes_inside(raw_array, slow_op_name="r_")
@@ -144,6 +150,7 @@ r_ = r_class()
 
 
 class c_class:
+
     def __getitem__(self, args):
         raw_array = _np.c_[args]
         return wrap_if_boxes_inside(raw_array, slow_op_name="c_")
@@ -159,11 +166,13 @@ def make_diagonal(D, offset=0, axis1=0, axis2=1):
     # diagonal arrays with extra dimensions. We need such a function for the
     # gradient of np.diagonal and it's also quite handy to have. So here it is.
     if not (offset == 0 and axis1 == -1 and axis2 == -2):
-        raise NotImplementedError("Currently make_diagonal only supports offset=0, axis1=-1, axis2=-2")
+        raise NotImplementedError(
+            "Currently make_diagonal only supports offset=0, axis1=-1, axis2=-2"
+        )
 
     # We use a trick: calling np.diagonal returns a view on the original array,
     # so we can modify it in-place. (only valid for numpy version >= 1.10.)
-    new_array = _np.zeros(D.shape + (D.shape[-1],))
+    new_array = _np.zeros(D.shape + (D.shape[-1], ))
     new_array_diag = _np.diagonal(new_array, offset=0, axis1=-1, axis2=-2)
     new_array_diag.flags.writeable = True
     new_array_diag[:] = D

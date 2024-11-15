@@ -18,36 +18,36 @@ def build_step_function_dataset(D=1, n_data=40, noise_std=0.1):
 def build_deep_gp(input_dimension, hidden_dimension, covariance_function):
     # GP going from input to hidden
     num_params_layer1, predict_layer1, log_marginal_likelihood_layer1 = make_gp_funs(
-        covariance_function, num_cov_params=input_dimension + 1
-    )
+        covariance_function, num_cov_params=input_dimension + 1)
 
     # GP going from hidden to output
     num_params_layer2, predict_layer2, log_marginal_likelihood_layer2 = make_gp_funs(
-        covariance_function, num_cov_params=hidden_dimension + 1
-    )
+        covariance_function, num_cov_params=hidden_dimension + 1)
 
     num_hidden_params = hidden_dimension * n_data
     total_num_params = num_params_layer1 + num_params_layer2 + num_hidden_params
 
     def unpack_all_params(all_params):
         layer1_params = all_params[:num_params_layer1]
-        layer2_params = all_params[num_params_layer1 : num_params_layer1 + num_params_layer2]
-        hiddens = all_params[num_params_layer1 + num_params_layer2 :]
+        layer2_params = all_params[num_params_layer1:num_params_layer1 +
+                                   num_params_layer2]
+        hiddens = all_params[num_params_layer1 + num_params_layer2:]
         return layer1_params, layer2_params, hiddens
 
     def combined_predict_fun(all_params, X, y, xs):
         layer1_params, layer2_params, hiddens = unpack_all_params(all_params)
         h_star_mean, h_star_cov = predict_layer1(layer1_params, X, hiddens, xs)
-        y_star_mean, y_star_cov = predict_layer2(
-            layer2_params, np.atleast_2d(hiddens).T, y, np.atleast_2d(h_star_mean).T
-        )
+        y_star_mean, y_star_cov = predict_layer2(layer2_params,
+                                                 np.atleast_2d(hiddens).T, y,
+                                                 np.atleast_2d(h_star_mean).T)
         return y_star_mean, y_star_cov
 
     def log_marginal_likelihood(all_params):
         layer1_params, layer2_params, h = unpack_all_params(all_params)
-        return log_marginal_likelihood_layer1(layer1_params, X, h) + log_marginal_likelihood_layer2(
-            layer2_params, np.atleast_2d(h).T, y
-        )
+        return log_marginal_likelihood_layer1(
+            layer1_params, X, h) + log_marginal_likelihood_layer2(
+                layer2_params,
+                np.atleast_2d(h).T, y)
 
     predict_layer_funcs = [predict_layer1, predict_layer2]
 
@@ -87,7 +87,10 @@ if __name__ == "__main__":
         ax.plot(plot_xs, pred_mean, "b")
         ax.fill(
             np.concatenate([plot_xs, plot_xs[::-1]]),
-            np.concatenate([pred_mean - 1.96 * marg_std, (pred_mean + 1.96 * marg_std)[::-1]]),
+            np.concatenate([
+                pred_mean - 1.96 * marg_std,
+                (pred_mean + 1.96 * marg_std)[::-1]
+            ]),
             alpha=0.15,
             fc="Blue",
             ec="None",
@@ -112,13 +115,16 @@ if __name__ == "__main__":
         ax_end_to_end.set_title("X to y")
 
         layer1_params, layer2_params, hiddens = unpack_all_params(params)
-        h_star_mean, h_star_cov = predict_layer_funcs[0](layer1_params, X, hiddens, plot_xs)
-        y_star_mean, y_star_cov = predict_layer_funcs[0](layer2_params, np.atleast_2d(hiddens).T, y, plot_xs)
+        h_star_mean, h_star_cov = predict_layer_funcs[0](layer1_params, X,
+                                                         hiddens, plot_xs)
+        y_star_mean, y_star_cov = predict_layer_funcs[0](
+            layer2_params, np.atleast_2d(hiddens).T, y, plot_xs)
 
         plot_gp(ax_x_to_h, X, hiddens, h_star_mean, h_star_cov, plot_xs)
         ax_x_to_h.set_title("X to hiddens")
 
-        plot_gp(ax_h_to_y, np.atleast_2d(hiddens).T, y, y_star_mean, y_star_cov, plot_xs)
+        plot_gp(ax_h_to_y,
+                np.atleast_2d(hiddens).T, y, y_star_mean, y_star_cov, plot_xs)
         ax_h_to_y.set_title("hiddens to y")
 
         plt.draw()
@@ -130,5 +136,9 @@ if __name__ == "__main__":
 
     print("Optimizing covariance parameters...")
     objective = lambda params: -log_marginal_likelihood(params)
-    cov_params = minimize(value_and_grad(objective), init_params, jac=True, method="CG", callback=callback)
+    cov_params = minimize(value_and_grad(objective),
+                          init_params,
+                          jac=True,
+                          method="CG",
+                          callback=callback)
     plt.pause(10.0)

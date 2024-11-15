@@ -23,7 +23,7 @@ def grad_odeint(yt, func, y0, t, func_args, **kwargs):
 
     def unpack(x):
         #      y,      vjp_y,      vjp_t,    vjp_args
-        return x[0:D], x[D : 2 * D], x[2 * D], x[2 * D + 1 :]
+        return x[0:D], x[D:2 * D], x[2 * D], x[2 * D + 1:]
 
     def augmented_dynamics(augmented_state, t, flat_args):
         # Orginal system augmented with vjp_y, vjp_t and vjp_args.
@@ -46,9 +46,9 @@ def grad_odeint(yt, func, y0, t, func_args, **kwargs):
 
             # Run augmented system backwards to the previous observation.
             aug_y0 = np.hstack((yt[i, :], vjp_y, vjp_t0, vjp_args))
-            aug_ans = odeint(
-                augmented_dynamics, aug_y0, np.array([t[i], t[i - 1]]), tuple((flat_args,)), **kwargs
-            )
+            aug_ans = odeint(augmented_dynamics, aug_y0,
+                             np.array([t[i], t[i - 1]]), tuple((flat_args, )),
+                             **kwargs)
             _, vjp_y, vjp_t0, vjp_args = unpack(aug_ans[1])
 
             # Add gradient from current output.

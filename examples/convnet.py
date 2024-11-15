@@ -39,7 +39,8 @@ def make_batches(N_total, N_batch):
 
 def logsumexp(X, axis, keepdims=False):
     max_X = np.max(X)
-    return max_X + np.log(np.sum(np.exp(X - max_X), axis=axis, keepdims=keepdims))
+    return max_X + np.log(
+        np.sum(np.exp(X - max_X), axis=axis, keepdims=keepdims))
 
 
 def make_nn_funs(input_shape, layer_specs, L2_reg):
@@ -47,7 +48,7 @@ def make_nn_funs(input_shape, layer_specs, L2_reg):
     cur_shape = input_shape
     for layer in layer_specs:
         N_weights, cur_shape = layer.build_weights_dict(cur_shape)
-        parser.add_weights(layer, (N_weights,))
+        parser.add_weights(layer, (N_weights, ))
 
     def predictions(W_vect, inputs):
         """Outputs normalized log-probabilities.
@@ -64,12 +65,14 @@ def make_nn_funs(input_shape, layer_specs, L2_reg):
         return -log_prior - log_lik
 
     def frac_err(W_vect, X, T):
-        return np.mean(np.argmax(T, axis=1) != np.argmax(pred_fun(W_vect, X), axis=1))
+        return np.mean(
+            np.argmax(T, axis=1) != np.argmax(pred_fun(W_vect, X), axis=1))
 
     return parser.N, predictions, loss, frac_err
 
 
 class conv_layer:
+
     def __init__(self, kernel_shape, num_filters):
         self.kernel_shape = kernel_shape
         self.num_filters = num_filters
@@ -80,15 +83,21 @@ class conv_layer:
         # Output dimensions: [data, color_out, y, x]
         params = self.parser.get(param_vector, "params")
         biases = self.parser.get(param_vector, "biases")
-        conv = convolve(inputs, params, axes=([2, 3], [2, 3]), dot_axes=([1], [0]), mode="valid")
+        conv = convolve(inputs,
+                        params,
+                        axes=([2, 3], [2, 3]),
+                        dot_axes=([1], [0]),
+                        mode="valid")
         return conv + biases
 
     def build_weights_dict(self, input_shape):
         # Input shape : [color, y, x] (don't need to know number of data yet)
         self.parser = WeightsParser()
-        self.parser.add_weights("params", (input_shape[0], self.num_filters) + self.kernel_shape)
+        self.parser.add_weights("params", (input_shape[0], self.num_filters) +
+                                self.kernel_shape)
         self.parser.add_weights("biases", (1, self.num_filters, 1, 1))
-        output_shape = (self.num_filters,) + self.conv_output_shape(input_shape[1:], self.kernel_shape)
+        output_shape = (self.num_filters, ) + self.conv_output_shape(
+            input_shape[1:], self.kernel_shape)
         return self.parser.N, output_shape
 
     def conv_output_shape(self, A, B):
@@ -96,6 +105,7 @@ class conv_layer:
 
 
 class maxpool_layer:
+
     def __init__(self, pool_shape):
         self.pool_shape = pool_shape
 
@@ -103,7 +113,8 @@ class maxpool_layer:
         # input_shape dimensions: [color, y, x]
         output_shape = list(input_shape)
         for i in [0, 1]:
-            assert input_shape[i + 1] % self.pool_shape[i] == 0, "maxpool shape should tile input exactly"
+            assert input_shape[i + 1] % self.pool_shape[
+                i] == 0, "maxpool shape should tile input exactly"
             output_shape[i + 1] = input_shape[i + 1] / self.pool_shape[i]
         return 0, output_shape
 
@@ -118,6 +129,7 @@ class maxpool_layer:
 
 
 class full_layer:
+
     def __init__(self, size):
         self.size = size
 
@@ -126,23 +138,26 @@ class full_layer:
         input_size = np.prod(input_shape, dtype=int)
         self.parser = WeightsParser()
         self.parser.add_weights("params", (input_size, self.size))
-        self.parser.add_weights("biases", (self.size,))
-        return self.parser.N, (self.size,)
+        self.parser.add_weights("biases", (self.size, ))
+        return self.parser.N, (self.size, )
 
     def forward_pass(self, inputs, param_vector):
         params = self.parser.get(param_vector, "params")
         biases = self.parser.get(param_vector, "biases")
         if inputs.ndim > 2:
-            inputs = inputs.reshape((inputs.shape[0], np.prod(inputs.shape[1:])))
+            inputs = inputs.reshape(
+                (inputs.shape[0], np.prod(inputs.shape[1:])))
         return self.nonlinearity(np.dot(inputs[:, :], params) + biases)
 
 
 class tanh_layer(full_layer):
+
     def nonlinearity(self, x):
         return np.tanh(x)
 
 
 class softmax_layer(full_layer):
+
     def nonlinearity(self, x):
         return x - logsumexp(x, axis=1, keepdims=True)
 
@@ -170,8 +185,10 @@ if __name__ == "__main__":
 
     # Load and process MNIST data
     print("Loading training data...")
-    add_color_channel = lambda x: x.reshape((x.shape[0], 1, x.shape[1], x.shape[2]))
-    one_hot = lambda x, K: np.array(x[:, None] == np.arange(K)[None, :], dtype=int)
+    add_color_channel = lambda x: x.reshape(
+        (x.shape[0], 1, x.shape[1], x.shape[2]))
+    one_hot = lambda x, K: np.array(x[:, None] == np.arange(K)[None, :],
+                                    dtype=int)
     train_images, train_labels, test_images, test_labels = data_mnist.mnist()
     train_images = add_color_channel(train_images) / 255.0
     test_images = add_color_channel(test_images) / 255.0
@@ -180,7 +197,8 @@ if __name__ == "__main__":
     N_data = train_images.shape[0]
 
     # Make neural net functions
-    N_weights, pred_fun, loss_fun, frac_err = make_nn_funs(input_shape, layer_specs, L2_reg)
+    N_weights, pred_fun, loss_fun, frac_err = make_nn_funs(
+        input_shape, layer_specs, L2_reg)
     loss_grad = grad(loss_fun)
 
     # Initialize weights

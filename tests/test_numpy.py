@@ -11,6 +11,7 @@ npr.seed(1)
 
 
 def test_dot():
+
     def fun(x, y):
         return np.dot(x, y)
 
@@ -27,6 +28,7 @@ def test_dot():
 
 
 def test_dot_with_floats():
+
     def fun(x, y):
         return np.dot(x, y)
 
@@ -57,6 +59,7 @@ def test_dot_with_floats():
 
 
 def test_outer():
+
     def fun(x, y):
         return np.outer(x, y)
 
@@ -69,6 +72,7 @@ def test_outer():
 
 
 def test_max():
+
     def fun(x):
         return np.max(x)
 
@@ -77,6 +81,7 @@ def test_max():
 
 
 def test_max_axis():
+
     def fun(x):
         return np.max(x, axis=1)
 
@@ -85,6 +90,7 @@ def test_max_axis():
 
 
 def test_max_axis_keepdims():
+
     def fun(x):
         return np.max(x, axis=1, keepdims=True)
 
@@ -93,6 +99,7 @@ def test_max_axis_keepdims():
 
 
 def test_min():
+
     def fun(x):
         return np.min(x)
 
@@ -101,6 +108,7 @@ def test_min():
 
 
 def test_min_axis():
+
     def fun(x):
         return np.min(x, axis=1)
 
@@ -109,6 +117,7 @@ def test_min_axis():
 
 
 def test_min_axis_keepdims():
+
     def fun(x):
         return np.min(x, axis=1, keepdims=True)
 
@@ -117,6 +126,7 @@ def test_min_axis_keepdims():
 
 
 def test_sum_1():
+
     def fun(x):
         return np.sum(x)
 
@@ -125,6 +135,7 @@ def test_sum_1():
 
 
 def test_sum_2():
+
     def fun(x):
         return np.sum(x, axis=0)
 
@@ -133,6 +144,7 @@ def test_sum_2():
 
 
 def test_sum_3():
+
     def fun(x):
         return np.sum(x, axis=0, keepdims=True)
 
@@ -141,6 +153,7 @@ def test_sum_3():
 
 
 def test_sum_with_axis_tuple():
+
     def fun(x):
         return np.sum(x, axis=(1, 2))
 
@@ -149,6 +162,7 @@ def test_sum_with_axis_tuple():
 
 
 def test_flipud():
+
     def fun(x):
         return np.flipud(x)
 
@@ -157,6 +171,7 @@ def test_flipud():
 
 
 def test_fliplr():
+
     def fun(x):
         return np.fliplr(x)
 
@@ -165,6 +180,7 @@ def test_fliplr():
 
 
 def test_rot90():
+
     def fun(x):
         return np.rot90(x)
 
@@ -173,6 +189,7 @@ def test_rot90():
 
 
 def test_cumsum_axis0():
+
     def fun(x):
         return np.cumsum(x, axis=0)
 
@@ -181,6 +198,7 @@ def test_cumsum_axis0():
 
 
 def test_cumsum_axis1():
+
     def fun(x):
         return np.cumsum(x, axis=1)
 
@@ -189,6 +207,7 @@ def test_cumsum_axis1():
 
 
 def test_cumsum_1d():
+
     def fun(x):
         return np.cumsum(x)
 
@@ -197,6 +216,7 @@ def test_cumsum_1d():
 
 
 def test_cumsum_no_axis():
+
     def fun(x):
         return np.cumsum(x)
 
@@ -205,6 +225,7 @@ def test_cumsum_no_axis():
 
 
 def test_non_numpy_sum():
+
     def fun(x, y):
         return sum([x, y])
 
@@ -214,6 +235,7 @@ def test_non_numpy_sum():
 
 
 def test_mean_1():
+
     def fun(x):
         return np.mean(x)
 
@@ -222,6 +244,7 @@ def test_mean_1():
 
 
 def test_mean_2():
+
     def fun(x):
         return np.mean(x, axis=0)
 
@@ -230,6 +253,7 @@ def test_mean_2():
 
 
 def test_mean_3():
+
     def fun(x):
         return np.mean(x, axis=0, keepdims=True)
 
@@ -421,6 +445,7 @@ def test_concatenate_axis_1_unnamed():
 
 
 def test_trace():
+
     def fun(x):
         return np.trace(x, offset=offset)
 
@@ -430,6 +455,7 @@ def test_trace():
 
 
 def test_trace2():
+
     def fun(x):
         return np.trace(x, offset=offset)
 
@@ -439,6 +465,7 @@ def test_trace2():
 
 
 def test_trace_extradims():
+
     def fun(x):
         return np.trace(x, offset=offset)
 
@@ -456,6 +483,7 @@ def test_trace_extradims():
 
 
 def test_diag():
+
     def fun(x):
         return np.diag(x)
 
@@ -464,6 +492,7 @@ def test_diag():
 
 
 def test_transpose():
+
     def fun(x):
         return x.T
 
@@ -472,6 +501,7 @@ def test_transpose():
 
 
 def test_roll():
+
     def fun(x):
         return np.roll(x, 2, axis=1)
 
@@ -480,6 +510,7 @@ def test_roll():
 
 
 def test_roll_no_axis():
+
     def fun(x):
         return np.roll(x, 2, axis=1)
 
@@ -488,6 +519,7 @@ def test_roll_no_axis():
 
 
 def test_triu():
+
     def fun(x):
         return np.triu(x, k=2)
 
@@ -496,6 +528,7 @@ def test_triu():
 
 
 def test_tril():
+
     def fun(x):
         return np.tril(x, k=2)
 
@@ -504,6 +537,7 @@ def test_tril():
 
 
 def test_clip():
+
     def fun(x):
         return np.clip(x, a_min=0.1, a_max=1.1)
 
@@ -512,38 +546,44 @@ def test_clip():
 
 
 def test_prod_1():
+
     def fun(x):
         return np.prod(x)
 
-    mat = npr.randn(2, 3) ** 2 / 10.0 + 0.1  # Gradient unstable when zeros are present.
+    mat = npr.randn(
+        2, 3)**2 / 10.0 + 0.1  # Gradient unstable when zeros are present.
     check_grads(fun)(mat)
 
 
 def test_prod_2():
+
     def fun(x):
         return np.prod(x, axis=0)
 
-    mat = npr.randn(2, 3) ** 2 + 0.1
+    mat = npr.randn(2, 3)**2 + 0.1
     check_grads(fun)(mat)
 
 
 def test_prod_3():
+
     def fun(x):
         return np.prod(x, axis=0, keepdims=True)
 
-    mat = npr.randn(2, 3) ** 2 + 0.1
+    mat = npr.randn(2, 3)**2 + 0.1
     check_grads(fun)(mat)
 
 
 def test_prod_4():
+
     def fun(x):
         return np.prod(x)
 
-    mat = npr.randn(7) ** 2 + 0.1
+    mat = npr.randn(7)**2 + 0.1
     check_grads(fun)(mat)
 
 
 def test_1d_array():
+
     def fun(x):
         return np.array([x, x * 1.0, x + 2.5])
 
@@ -551,6 +591,7 @@ def test_1d_array():
 
 
 def test_2d_array():
+
     def fun(x):
         return np.array([[x, x * 1.0, x + 2.5], [x**2, x, x / 2.0]])
 
@@ -558,6 +599,7 @@ def test_2d_array():
 
 
 def test_1d_array_fanout():
+
     def fun(x):
         A = np.array([x, x * 1.0, x + 2.5])
         return A + A
@@ -566,6 +608,7 @@ def test_1d_array_fanout():
 
 
 def test_2d_array_fanout():
+
     def fun(x):
         A = np.array([[x, x * 1.0, x + 2.5], [x**2, x, x / 2.0]])
         return A + A
@@ -574,6 +617,7 @@ def test_2d_array_fanout():
 
 
 def test_array_from_scalar():
+
     def fun(x):
         return np.array(x)
 
@@ -581,6 +625,7 @@ def test_array_from_scalar():
 
 
 def test_array_from_arrays():
+
     def fun(x):
         return np.array([x, x])
 
@@ -589,6 +634,7 @@ def test_array_from_arrays():
 
 
 def test_array_from_arrays_2():
+
     def fun(x):
         return np.array([[2 * x, x + 1], [x, x]])
 
@@ -597,6 +643,7 @@ def test_array_from_arrays_2():
 
 
 def test_len():
+
     def fun(x):
         assert len(x) == 3
         return x
@@ -716,19 +763,32 @@ def test_var_ddof():
     B = npr.randn(3)
     C = npr.randn(3, 4)
     D = npr.randn(1, 3)
-    combo_check(np.var, (0,))([B, C, D], axis=[None], keepdims=[True, False], ddof=[0, 1])
-    combo_check(np.var, (0,))([C, D], axis=[None, 1], keepdims=[True, False], ddof=[2])
+    combo_check(np.var, (0, ))([B, C, D],
+                               axis=[None],
+                               keepdims=[True, False],
+                               ddof=[0, 1])
+    combo_check(np.var, (0, ))([C, D],
+                               axis=[None, 1],
+                               keepdims=[True, False],
+                               ddof=[2])
 
 
 def test_std_ddof():
     B = npr.randn(3)
     C = npr.randn(3, 4)
     D = npr.randn(1, 3)
-    combo_check(np.std, (0,))([B, C, D], axis=[None], keepdims=[True, False], ddof=[0, 1])
-    combo_check(np.std, (0,))([C, D], axis=[None, 1], keepdims=[True, False], ddof=[2])
+    combo_check(np.std, (0, ))([B, C, D],
+                               axis=[None],
+                               keepdims=[True, False],
+                               ddof=[0, 1])
+    combo_check(np.std, (0, ))([C, D],
+                               axis=[None, 1],
+                               keepdims=[True, False],
+                               ddof=[2])
 
 
 def test_where():
+
     def fun(x, y):
         b = np.where(C, x, y)
         return b
@@ -812,6 +872,7 @@ def test_expand_dims():
 
 
 def test_tensordot_kwargs_by_position():
+
     def fun(x):
         return np.tensordot(x * np.ones((2, 2)), x * np.ones((2, 2)), 2)
 
@@ -876,6 +937,7 @@ def test_cast_to_int():
 
 
 def test_make_diagonal():
+
     def fun(D):
         return np.make_diagonal(D, axis1=-1, axis2=-2)
 
@@ -891,6 +953,7 @@ def test_make_diagonal():
 
 
 def test_diagonal():
+
     def fun(D):
         return np.diagonal(D, axis1=-1, axis2=-2)
 
@@ -920,6 +983,7 @@ def test_nan_to_num():
 
 
 def test_max_equal_values():
+
     def fun(x):
         return np.max(np.array([x, x]))
 
@@ -927,6 +991,7 @@ def test_max_equal_values():
 
 
 def test_max_equal_values_2d():
+
     def fun(x):
         return np.max(np.array([[x, x], [x, 0.5]]), axis=1)
 
@@ -935,14 +1000,18 @@ def test_max_equal_values_2d():
 
 
 def test_min_3_way_equality():
+
     def fun(x):
-        return np.min(np.array([[x, x, x], [x, 0.5, 0.5], [0.5, 0.5, 0.5], [x, x, 0.5]]), axis=0)
+        return np.min(np.array([[x, x, x], [x, 0.5, 0.5], [0.5, 0.5, 0.5],
+                                [x, x, 0.5]]),
+                      axis=0)
 
     check_grads(fun)(1.0)
     check_grads(fun)(-1.0)
 
 
 def test_maximum_equal_values():
+
     def fun(x):
         return np.maximum(x, x)
 
@@ -950,8 +1019,10 @@ def test_maximum_equal_values():
 
 
 def test_maximum_equal_values_2d():
+
     def fun(x):
-        return np.maximum(np.array([x, x, 0.5]), np.array([[x, 0.5, x], [x, x, 0.5]]))
+        return np.maximum(np.array([x, x, 0.5]),
+                          np.array([[x, 0.5, x], [x, x, 0.5]]))
 
     check_grads(fun)(1.0)
     check_grads(fun)(-1.0)

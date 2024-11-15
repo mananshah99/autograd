@@ -36,7 +36,8 @@ def sample_diag_gaussian(params, num_samples, rs):
     return rs.randn(num_samples, D) * np.exp(log_std) + mean
 
 
-def variational_lower_bound(params, t, logprob, sampler, log_density, num_samples, rs):
+def variational_lower_bound(params, t, logprob, sampler, log_density,
+                            num_samples, rs):
     """Provides a stochastic estimate of the variational lower bound,
     for any variational family and model density."""
     samples = sampler(params, num_samples, rs)
@@ -47,7 +48,11 @@ def variational_lower_bound(params, t, logprob, sampler, log_density, num_sample
     return np.mean(log_ps - log_qs)
 
 
-def init_gaussian_var_params(D, mean_mean=-1, log_std_mean=-5, scale=0.1, rs=npr.RandomState(0)):
+def init_gaussian_var_params(D,
+                             mean_mean=-1,
+                             log_std_mean=-5,
+                             scale=0.1,
+                             rs=npr.RandomState(0)):
     init_mean = mean_mean * np.ones(D) + rs.randn(D) * scale
     init_log_std = log_std_mean * np.ones(D) + rs.randn(D) * scale
     return np.concatenate([init_mean, init_log_std])
@@ -69,7 +74,9 @@ def build_mog_bbsvi(logprob, num_samples, k=10, rs=npr.RandomState(0)):
 
     def init_var_params(D, rs=npr.RandomState(0), **kwargs):
         log_weights = np.ones(k)
-        component_weights = [init_component_var_params(D, rs=rs, **kwargs) for i in range(k)]
+        component_weights = [
+            init_component_var_params(D, rs=rs, **kwargs) for i in range(k)
+        ]
         return np.concatenate([log_weights] + component_weights)
 
     def sample(var_mixture_params, num_samples, rs):
@@ -77,7 +84,10 @@ def build_mog_bbsvi(logprob, num_samples, k=10, rs=npr.RandomState(0)):
         due to multinomial sampling."""
         log_weights, var_params = unpack_mixture_params(var_mixture_params)
         samples = np.concatenate(
-            [component_sample(params_k, num_samples, rs)[:, np.newaxis, :] for params_k in var_params],
+            [
+                component_sample(params_k, num_samples, rs)[:, np.newaxis, :]
+                for params_k in var_params
+            ],
             axis=1,
         )
         ixs = np.random.choice(k, size=num_samples, p=np.exp(log_weights))
@@ -87,9 +97,10 @@ def build_mog_bbsvi(logprob, num_samples, k=10, rs=npr.RandomState(0)):
         """Returns a weighted average over component densities."""
         log_weights, var_params = unpack_mixture_params(var_mixture_params)
         component_log_densities = np.vstack(
-            [component_log_density(params_k, x) for params_k in var_params]
-        ).T
-        return logsumexp(component_log_densities + log_weights, axis=1, keepdims=False)
+            [component_log_density(params_k, x) for params_k in var_params]).T
+        return logsumexp(component_log_densities + log_weights,
+                         axis=1,
+                         keepdims=False)
 
     def mixture_elbo(var_mixture_params, t):
         # We need to only sample the continuous component parameters,
@@ -105,7 +116,8 @@ def build_mog_bbsvi(logprob, num_samples, k=10, rs=npr.RandomState(0)):
             return np.mean(log_ps - log_qs)
 
         log_weights, var_params = unpack_mixture_params(var_mixture_params)
-        component_elbos = np.stack([mixture_lower_bound(params_k) for params_k in var_params])
+        component_elbos = np.stack(
+            [mixture_lower_bound(params_k) for params_k in var_params])
         return np.sum(component_elbos * np.exp(log_weights))
 
     return init_var_params, mixture_elbo, mixture_log_density, sample
@@ -121,21 +133,29 @@ if __name__ == "__main__":
         mu_density = norm.logpdf(mu, -0.5, np.exp(log_sigma))
         sigma_density2 = norm.logpdf(log_sigma, 0.1, 1.35)
         mu_density2 = norm.logpdf(mu, 0.5, np.exp(log_sigma))
-        return np.logaddexp(sigma_density + mu_density, sigma_density2 + mu_density2)
+        return np.logaddexp(sigma_density + mu_density,
+                            sigma_density2 + mu_density2)
 
     init_var_params, elbo, variational_log_density, variational_sampler = build_mog_bbsvi(
-        log_density, num_samples=40, k=10
-    )
+        log_density, num_samples=40, k=10)
 
     def objective(params, t):
         return -elbo(params, t)
 
     # Set up plotting code
-    def plot_isocontours(ax, func, xlimits=[-2, 2], ylimits=[-4, 2], numticks=101, cmap=None):
+    def plot_isocontours(ax,
+                         func,
+                         xlimits=[-2, 2],
+                         ylimits=[-4, 2],
+                         numticks=101,
+                         cmap=None):
         x = np.linspace(*xlimits, num=numticks)
         y = np.linspace(*ylimits, num=numticks)
         X, Y = np.meshgrid(x, y)
-        zs = func(np.concatenate([np.atleast_2d(X.ravel()), np.atleast_2d(Y.ravel())]).T)
+        zs = func(
+            np.concatenate(
+                [np.atleast_2d(X.ravel()),
+                 np.atleast_2d(Y.ravel())]).T)
         Z = zs.reshape(X.shape)
         plt.contour(X, Y, Z, cmap=cmap)
         ax.set_yticks([])
@@ -166,6 +186,8 @@ if __name__ == "__main__":
         plt.pause(1.0 / 30.0)
 
     print("Optimizing variational parameters...")
-    variational_params = adam(
-        grad(objective), init_var_params(D), step_size=0.1, num_iters=2000, callback=callback
-    )
+    variational_params = adam(grad(objective),
+                              init_var_params(D),
+                              step_size=0.1,
+                              num_iters=2000,
+                              callback=callback)

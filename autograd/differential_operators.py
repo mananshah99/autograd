@@ -27,12 +27,11 @@ def grad(fun, x):
     positional argument number `argnum`. The returned function takes the same
     arguments as `fun`, but returns the gradient instead. The function `fun`
     should be scalar-valued. The gradient has the same type as the argument."""
+    print('calling grad with f ', fun, ' and x ', x)
     vjp, ans = _make_vjp(fun, x)
     if not vspace(ans).size == 1:
-        raise TypeError(
-            "Grad only applies to real scalar-output functions. "
-            "Try jacobian, elementwise_grad or holomorphic_grad."
-        )
+        raise TypeError("Grad only applies to real scalar-output functions. "
+                        "Try jacobian, elementwise_grad or holomorphic_grad.")
     return vjp(vspace(ans).ones())
 
 
@@ -45,7 +44,8 @@ def elementwise_grad(fun, x):
     """
     vjp, ans = _make_vjp(fun, x)
     if vspace(ans).iscomplex:
-        raise TypeError("Elementwise_grad only applies to real-output functions.")
+        raise TypeError(
+            "Elementwise_grad only applies to real-output functions.")
     return vjp(vspace(ans).ones())
 
 
@@ -166,11 +166,9 @@ def value_and_grad(fun, x):
     in scipy.optimize"""
     vjp, ans = _make_vjp(fun, x)
     if not vspace(ans).size == 1:
-        raise TypeError(
-            "value_and_grad only applies to real scalar-output "
-            "functions. Try jacobian, elementwise_grad or "
-            "holomorphic_grad."
-        )
+        raise TypeError("value_and_grad only applies to real scalar-output "
+                        "functions. Try jacobian, elementwise_grad or "
+                        "holomorphic_grad.")
     return ans, vjp(vspace(ans).ones())
 
 
@@ -191,38 +189,46 @@ def multigrad_dict(fun):
     sig = funcsigs.signature(fun)
 
     def select(preds, lst):
-        idx = lambda item: next((i for i, pred in enumerate(preds) if pred(item)), len(preds))
+        idx = lambda item: next(
+            (i for i, pred in enumerate(preds) if pred(item)), len(preds))
         results = [[] for _ in preds] + [[]]
         for item in lst:
             results[idx(item)].append(item)
         return results
 
-    is_var_pos = lambda name: sig.parameters[name].kind == sig.parameters[name].VAR_POSITIONAL
-    is_var_kwd = lambda name: sig.parameters[name].kind == sig.parameters[name].VAR_KEYWORD
-    var_pos, var_kwd, argnames = select([is_var_pos, is_var_kwd], sig.parameters)
+    is_var_pos = lambda name: sig.parameters[name].kind == sig.parameters[
+        name].VAR_POSITIONAL
+    is_var_kwd = lambda name: sig.parameters[name].kind == sig.parameters[
+        name].VAR_KEYWORD
+    var_pos, var_kwd, argnames = select([is_var_pos, is_var_kwd],
+                                        sig.parameters)
 
     todict = lambda dct: {key: dct[key] for key in dct}
 
     def apply_defaults(arguments):
         defaults = {
-            name: param.default for name, param in sig.parameters.items() if param.default is not param.empty
+            name: param.default
+            for name, param in sig.parameters.items()
+            if param.default is not param.empty
         }
         return OrderedDict(
-            (name, arguments[name] if name in arguments else defaults[name]) for name in sig.parameters
-        )
+            (name, arguments[name] if name in arguments else defaults[name])
+            for name in sig.parameters)
 
     def gradfun(*args, **kwargs):
         bindings = sig.bind(*args, **kwargs)
 
         args = lambda dct: tuple(dct[var_pos[0]]) if var_pos else ()
         kwargs = lambda dct: todict(dct[var_kwd[0]]) if var_kwd else {}
-        others = lambda dct: tuple(dct[argname] for argname in argnames if argname not in var_kwd + var_pos)
+        others = lambda dct: tuple(dct[argname] for argname in argnames
+                                   if argname not in var_kwd + var_pos)
 
         newfun = lambda dct: fun(*(others(dct) + args(dct)), **kwargs(dct))
 
         argdict = apply_defaults(bindings.arguments)
         grad_dict = grad(newfun)(dict(argdict))
-        return OrderedDict((argname, grad_dict[argname]) for argname in argdict)
+        return OrderedDict(
+            (argname, grad_dict[argname]) for argname in argdict)
 
     return gradfun
 

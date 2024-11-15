@@ -28,7 +28,8 @@ def log_normalize(x):
 
 def unpack_gmm_params(params):
     normalized_log_proportions = log_normalize(params["log proportions"])
-    return normalized_log_proportions, params["means"], params["lower triangles"]
+    return normalized_log_proportions, params["means"], params[
+        "lower triangles"]
 
 
 def gmm_log_likelihood(params, data):
@@ -55,12 +56,17 @@ def plot_gaussian_mixture(params, ax):
 if __name__ == "__main__":
     init_params = init_gmm_params(num_components=10, D=2, scale=0.1)
 
-    data = make_pinwheel(radial_std=0.3, tangential_std=0.05, num_classes=3, num_per_class=100, rate=0.4)
+    data = make_pinwheel(radial_std=0.3,
+                         tangential_std=0.05,
+                         num_classes=3,
+                         num_per_class=100,
+                         rate=0.4)
 
     def objective(params):
         return -gmm_log_likelihood(params, data)
 
-    flattened_obj, unflatten, flattened_init_params = flatten_func(objective, init_params)
+    flattened_obj, unflatten, flattened_init_params = flatten_func(
+        objective, init_params)
 
     fig = plt.figure(figsize=(12, 8), facecolor="white")
     ax = fig.add_subplot(111, frameon=False)

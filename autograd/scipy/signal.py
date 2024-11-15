@@ -12,10 +12,14 @@ def convolve(A, B, axes=None, dot_axes=[(), ()], mode="full"):
     assert mode in ["valid", "full"], f"Mode {mode} not yet implemented"
     if axes is None:
         axes = [list(range(A.ndim)), list(range(A.ndim))]
-    wrong_order = any([B.shape[ax_B] < A.shape[ax_A] for ax_A, ax_B in zip(*axes)])
+    wrong_order = any(
+        [B.shape[ax_B] < A.shape[ax_A] for ax_A, ax_B in zip(*axes)])
     if wrong_order:
-        if mode == "valid" and not all([B.shape[ax_B] <= A.shape[ax_A] for ax_A, ax_B in zip(*axes)]):
-            raise Exception("One array must be larger than the other along all convolved dimensions")
+        if mode == "valid" and not all(
+            [B.shape[ax_B] <= A.shape[ax_A] for ax_A, ax_B in zip(*axes)]):
+            raise Exception(
+                "One array must be larger than the other along all convolved dimensions"
+            )
         elif mode != "full" or B.size <= A.size:  # Tie breaker
             i1 = B.ndim - len(dot_axes[1]) - len(axes[1])  # B ignore
             i2 = i1 + A.ndim - len(dot_axes[0]) - len(axes[0])  # A ignore
@@ -23,9 +27,11 @@ def convolve(A, B, axes=None, dot_axes=[(), ()], mode="full"):
             ignore_B = list(range(i1))
             ignore_A = list(range(i1, i2))
             conv = list(range(i2, i3))
-            return convolve(B, A, axes=axes[::-1], dot_axes=dot_axes[::-1], mode=mode).transpose(
-                ignore_A + ignore_B + conv
-            )
+            return convolve(B,
+                            A,
+                            axes=axes[::-1],
+                            dot_axes=dot_axes[::-1],
+                            mode=mode).transpose(ignore_A + ignore_B + conv)
 
     if mode == "full":
         B = pad_to_full(B, A, axes[::-1])
@@ -57,7 +63,7 @@ def einsum_tensordot(A, B, axes, reverse=False):
 def pad_to_full(A, B, axes):
     A_pad = [(0, 0)] * A.ndim
     for ax_A, ax_B in zip(*axes):
-        A_pad[ax_A] = (B.shape[ax_B] - 1,) * 2
+        A_pad[ax_A] = (B.shape[ax_B] - 1, ) * 2
     return npo.pad(A, A_pad, mode="constant")
 
 
@@ -70,14 +76,22 @@ def parse_axes(A_shape, B_shape, conv_axes, dot_axes, mode):
         )
     axes = {
         "A": {
-            "conv": tuple(conv_axes[0]),
-            "dot": tuple(dot_axes[0]),
-            "ignore": tuple(i for i in range(A_ndim) if i not in conv_axes[0] and i not in dot_axes[0]),
+            "conv":
+            tuple(conv_axes[0]),
+            "dot":
+            tuple(dot_axes[0]),
+            "ignore":
+            tuple(i for i in range(A_ndim)
+                  if i not in conv_axes[0] and i not in dot_axes[0]),
         },
         "B": {
-            "conv": tuple(conv_axes[1]),
-            "dot": tuple(dot_axes[1]),
-            "ignore": tuple(i for i in range(B_ndim) if i not in conv_axes[1] and i not in dot_axes[1]),
+            "conv":
+            tuple(conv_axes[1]),
+            "dot":
+            tuple(dot_axes[1]),
+            "ignore":
+            tuple(i for i in range(B_ndim)
+                  if i not in conv_axes[1] and i not in dot_axes[1]),
         },
     }
     assert len(axes["A"]["dot"]) == len(axes["B"]["dot"])
@@ -90,12 +104,17 @@ def parse_axes(A_shape, B_shape, conv_axes, dot_axes, mode):
         "ignore_B": tuple(range(i1, i2)),
         "conv": tuple(range(i2, i3)),
     }
-    conv_shape = (
-        compute_conv_size(A_shape[i], B_shape[j], mode) for i, j in zip(axes["A"]["conv"], axes["B"]["conv"])
-    )
+    conv_shape = (compute_conv_size(A_shape[i], B_shape[j], mode)
+                  for i, j in zip(axes["A"]["conv"], axes["B"]["conv"]))
     shapes = {
-        "A": {s: tuple(A_shape[i] for i in ax) for s, ax in axes["A"].items()},
-        "B": {s: tuple(B_shape[i] for i in ax) for s, ax in axes["B"].items()},
+        "A": {
+            s: tuple(A_shape[i] for i in ax)
+            for s, ax in axes["A"].items()
+        },
+        "B": {
+            s: tuple(B_shape[i] for i in ax)
+            for s, ax in axes["B"].items()
+        },
     }
     shapes["out"] = {
         "ignore_A": shapes["A"]["ignore"],
@@ -123,8 +142,15 @@ def flipped_idxs(ndim, axes):
     return tuple(new_idxs)
 
 
-def grad_convolve(argnum, ans, A, B, axes=None, dot_axes=[(), ()], mode="full"):
-    assert mode in ["valid", "full"], f"Grad for mode {mode} not yet implemented"
+def grad_convolve(argnum,
+                  ans,
+                  A,
+                  B,
+                  axes=None,
+                  dot_axes=[(), ()],
+                  mode="full"):
+    assert mode in ["valid",
+                    "full"], f"Grad for mode {mode} not yet implemented"
     axes, shapes = parse_axes(A.shape, B.shape, axes, dot_axes, mode)
     if argnum == 0:
         X, Y = A, B
@@ -135,12 +161,16 @@ def grad_convolve(argnum, ans, A, B, axes=None, dot_axes=[(), ()], mode="full"):
         _X_, _Y_ = "B", "A"
         ignore_Y = "ignore_A"
     else:
-        raise NotImplementedError(f"Can't take grad of convolve w.r.t. arg {argnum}")
+        raise NotImplementedError(
+            f"Can't take grad of convolve w.r.t. arg {argnum}")
 
     if mode == "full":
         new_mode = "valid"
     else:
-        if any([x_size > y_size for x_size, y_size in zip(shapes[_X_]["conv"], shapes[_Y_]["conv"])]):
+        if any([
+                x_size > y_size for x_size, y_size in zip(
+                    shapes[_X_]["conv"], shapes[_Y_]["conv"])
+        ]):
             new_mode = "full"
         else:
             new_mode = "valid"
@@ -153,7 +183,8 @@ def grad_convolve(argnum, ans, A, B, axes=None, dot_axes=[(), ()], mode="full"):
             dot_axes=[axes["out"][ignore_Y], axes[_Y_]["ignore"]],
             mode=new_mode,
         )
-        new_order = npo.argsort(axes[_X_]["ignore"] + axes[_X_]["dot"] + axes[_X_]["conv"])
+        new_order = npo.argsort(axes[_X_]["ignore"] + axes[_X_]["dot"] +
+                                axes[_X_]["conv"])
         return np.transpose(result, new_order)
 
     return vjp

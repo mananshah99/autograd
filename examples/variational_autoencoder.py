@@ -49,7 +49,8 @@ def init_net_params(scale, layer_sizes, rs=npr.RandomState(0)):
 
 def batch_normalize(activations):
     mbmean = np.mean(activations, axis=0, keepdims=True)
-    return (activations - mbmean) / (np.std(activations, axis=0, keepdims=True) + 1)
+    return (activations -
+            mbmean) / (np.std(activations, axis=0, keepdims=True) + 1)
 
 
 def neural_net_predict(params, inputs):
@@ -57,7 +58,8 @@ def neural_net_predict(params, inputs):
     inputs is an (N x D) matrix.
     Applies batch normalization to every layer but the last."""
     for W, b in params[:-1]:
-        outputs = batch_normalize(np.dot(inputs, W) + b)  # linear transformation
+        outputs = batch_normalize(np.dot(inputs, W) +
+                                  b)  # linear transformation
         inputs = relu(outputs)  # nonlinear transformation
     outW, outb = params[-1]
     outputs = np.dot(inputs, outW) + outb
@@ -132,7 +134,8 @@ if __name__ == "__main__":
     def objective(combined_params, iter):
         data_idx = batch_indices(iter)
         gen_params, rec_params = combined_params
-        return -vae_lower_bound(gen_params, rec_params, train_images[data_idx], seed) / data_dim
+        return -vae_lower_bound(gen_params, rec_params, train_images[data_idx],
+                                seed) / data_dim
 
     # Get gradients of objective using autograd.
     objective_grad = grad(objective)
@@ -145,7 +148,8 @@ if __name__ == "__main__":
             bound = np.mean(objective(combined_params, iter))
             message = f"{iter // num_batches:15}|{bound:20}|"
             if iter % 100 == 0:
-                test_bound = -vae_lower_bound(gen_params, rec_params, test_images, seed) / data_dim
+                test_bound = -vae_lower_bound(gen_params, rec_params,
+                                              test_images, seed) / data_dim
                 message += f"{test_bound:20}"
             print(message)
 

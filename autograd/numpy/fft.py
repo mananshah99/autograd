@@ -15,17 +15,24 @@ def fft_grad(get_args, fft_fun, ans, x, *args, **kwargs):
     axes, s, norm = get_args(x, *args, **kwargs)
     check_no_repeated_axes(axes)
     vs = vspace(x)
-    return lambda g: match_complex(x, truncate_pad(fft_fun(g, *args, **kwargs), vs.shape))
+    return lambda g: match_complex(
+        x, truncate_pad(fft_fun(g, *args, **kwargs), vs.shape))
 
 
-defvjp(fft, lambda *args, **kwargs: fft_grad(get_fft_args, fft, *args, **kwargs))
-defvjp(ifft, lambda *args, **kwargs: fft_grad(get_fft_args, ifft, *args, **kwargs))
+defvjp(fft,
+       lambda *args, **kwargs: fft_grad(get_fft_args, fft, *args, **kwargs))
+defvjp(ifft,
+       lambda *args, **kwargs: fft_grad(get_fft_args, ifft, *args, **kwargs))
 
-defvjp(fft2, lambda *args, **kwargs: fft_grad(get_fft_args, fft2, *args, **kwargs))
-defvjp(ifft2, lambda *args, **kwargs: fft_grad(get_fft_args, ifft2, *args, **kwargs))
+defvjp(fft2,
+       lambda *args, **kwargs: fft_grad(get_fft_args, fft2, *args, **kwargs))
+defvjp(ifft2,
+       lambda *args, **kwargs: fft_grad(get_fft_args, ifft2, *args, **kwargs))
 
-defvjp(fftn, lambda *args, **kwargs: fft_grad(get_fft_args, fftn, *args, **kwargs))
-defvjp(ifftn, lambda *args, **kwargs: fft_grad(get_fft_args, ifftn, *args, **kwargs))
+defvjp(fftn,
+       lambda *args, **kwargs: fft_grad(get_fft_args, fftn, *args, **kwargs))
+defvjp(ifftn,
+       lambda *args, **kwargs: fft_grad(get_fft_args, ifftn, *args, **kwargs))
 
 
 def rfft_grad(get_args, irfft_fun, ans, x, *args, **kwargs):
@@ -45,7 +52,8 @@ def rfft_grad(get_args, irfft_fun, ans, x, *args, **kwargs):
 
     def vjp(g):
         g = anp.conj(g / fac)
-        r = match_complex(x, truncate_pad((irfft_fun(g, *args, **kwargs)), vs.shape))
+        r = match_complex(
+            x, truncate_pad((irfft_fun(g, *args, **kwargs)), vs.shape))
         return r
 
     return vjp
@@ -66,7 +74,8 @@ def irfft_grad(get_args, rfft_fun, ans, x, *args, **kwargs):
     s[-1] = s[-1] // 2 + 1
 
     def vjp(g):
-        r = match_complex(x, truncate_pad((rfft_fun(g, *args, **kwargs)), vs.shape))
+        r = match_complex(
+            x, truncate_pad((rfft_fun(g, *args, **kwargs)), vs.shape))
         fac = make_rfft_factors(axes, vs.shape, s, gs, norm)
         r = anp.conj(r) * fac
         return r
@@ -74,24 +83,34 @@ def irfft_grad(get_args, rfft_fun, ans, x, *args, **kwargs):
     return vjp
 
 
-defvjp(rfft, lambda *args, **kwargs: rfft_grad(get_fft_args, irfft, *args, **kwargs))
+defvjp(rfft,
+       lambda *args, **kwargs: rfft_grad(get_fft_args, irfft, *args, **kwargs))
 
-defvjp(irfft, lambda *args, **kwargs: irfft_grad(get_fft_args, rfft, *args, **kwargs))
-
-defvjp(rfft2, lambda *args, **kwargs: rfft_grad(get_fft2_args, irfft2, *args, **kwargs))
-
-defvjp(irfft2, lambda *args, **kwargs: irfft_grad(get_fft2_args, rfft2, *args, **kwargs))
-
-defvjp(rfftn, lambda *args, **kwargs: rfft_grad(get_fftn_args, irfftn, *args, **kwargs))
-
-defvjp(irfftn, lambda *args, **kwargs: irfft_grad(get_fftn_args, rfftn, *args, **kwargs))
+defvjp(irfft,
+       lambda *args, **kwargs: irfft_grad(get_fft_args, rfft, *args, **kwargs))
 
 defvjp(
-    fftshift, lambda ans, x, axes=None: lambda g: match_complex(x, anp.conj(ifftshift(anp.conj(g), axes)))
-)
+    rfft2,
+    lambda *args, **kwargs: rfft_grad(get_fft2_args, irfft2, *args, **kwargs))
+
 defvjp(
-    ifftshift, lambda ans, x, axes=None: lambda g: match_complex(x, anp.conj(fftshift(anp.conj(g), axes)))
-)
+    irfft2,
+    lambda *args, **kwargs: irfft_grad(get_fft2_args, rfft2, *args, **kwargs))
+
+defvjp(
+    rfftn,
+    lambda *args, **kwargs: rfft_grad(get_fftn_args, irfftn, *args, **kwargs))
+
+defvjp(
+    irfftn,
+    lambda *args, **kwargs: irfft_grad(get_fftn_args, rfftn, *args, **kwargs))
+
+defvjp(fftshift,
+       lambda ans, x, axes=None: lambda g: match_complex(
+           x, anp.conj(ifftshift(anp.conj(g), axes))))
+defvjp(ifftshift,
+       lambda ans, x, axes=None: lambda g: match_complex(
+           x, anp.conj(fftshift(anp.conj(g), axes))))
 
 
 @primitive
@@ -99,24 +118,30 @@ def truncate_pad(x, shape):
     # truncate/pad x to have the appropriate shape
     slices = [slice(n) for n in shape]
     pads = tuple(
-        zip(anp.zeros(len(shape), dtype=int), anp.maximum(0, anp.array(shape) - anp.array(x.shape)))
-    )
+        zip(anp.zeros(len(shape), dtype=int),
+            anp.maximum(0,
+                        anp.array(shape) - anp.array(x.shape))))
     return anp.pad(x, pads, "constant")[tuple(slices)]
 
 
-defvjp(truncate_pad, lambda ans, x, shape: lambda g: match_complex(x, truncate_pad(g, vspace(x).shape)))
+defvjp(
+    truncate_pad, lambda ans, x, shape: lambda g: match_complex(
+        x, truncate_pad(g,
+                        vspace(x).shape)))
 
 
 ## TODO: could be made less stringent, to fail only when repeated axis has different values of s
 def check_no_repeated_axes(axes):
     axes_set = set(axes)
     if len(axes) != len(axes_set):
-        raise NotImplementedError("FFT gradient for repeated axes not implemented.")
+        raise NotImplementedError(
+            "FFT gradient for repeated axes not implemented.")
 
 
 def check_even_shape(shape):
     if shape[-1] % 2 != 0:
-        raise NotImplementedError("Real FFT gradient for odd lengthed last axes is not implemented.")
+        raise NotImplementedError(
+            "Real FFT gradient for odd lengthed last axes is not implemented.")
 
 
 def get_fft_args(a, d=None, axis=-1, norm=None, *args, **kwargs):
@@ -154,7 +179,7 @@ def make_rfft_factors(axes, resshape, facshape, normshape, norm):
     if facshape[-1] <= resshape[axes[-1]]:
         index[axes[-1]] = (0, facshape[-1] - 1)
     else:
-        index[axes[-1]] = (0,)
+        index[axes[-1]] = (0, )
     fac[tuple(index)] = 1
     if norm is None:
         fac /= N

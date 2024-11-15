@@ -9,6 +9,7 @@ npr.seed(1)
 
 
 def test_getter():
+
     def fun(input_tuple):
         A = np.sum(input_tuple[0])
         B = np.sum(input_tuple[1])
@@ -25,6 +26,7 @@ def test_getter():
 
 
 def test_grads():
+
     def fun(input_tuple):
         A = np.sum(np.sin(input_tuple[0]))
         B = np.sum(np.cos(input_tuple[1]))
@@ -44,7 +46,9 @@ def test_grads():
 
 
 def test_nested_higher_order():
+
     def outer_fun(x):
+
         def inner_fun(y):
             return y[0] * y[1]
 
@@ -56,6 +60,7 @@ def test_nested_higher_order():
 
 
 def test_isinstance():
+
     def fun(x):
         assert ag_isinstance(x, tuple)
         assert ag_isinstance(x, ag_tuple)

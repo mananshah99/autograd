@@ -9,7 +9,7 @@ def stat_check(fun, test_complex=True, **kwargs):
     B = npr.randn(3)
     C = npr.randn(2, 3)
     D = npr.randn(1, 3)
-    check = combo_check(fun, (0,), **kwargs)
+    check = combo_check(fun, (0, ), **kwargs)
     check([x, A])
     check([B, C, D], axis=[None, 0], keepdims=[True, False])
     check([C, D], axis=[None, 0, 1], keepdims=[True, False])
@@ -25,7 +25,7 @@ def unary_ufunc_check(fun, lims=[-2, 2], test_complex=True, **kwargs):
     vector = transform(lims, npr.rand(2))
     mat = transform(lims, npr.rand(3, 2))
     mat2 = transform(lims, npr.rand(1, 2))
-    check = combo_check(fun, (0,), **kwargs)
+    check = combo_check(fun, (0, ), **kwargs)
     check([scalar, vector, mat, mat2])
     if test_complex:
         comp = transform(lims, 0.4) + 0.1j * transform(lims, 0.3)
@@ -33,7 +33,11 @@ def unary_ufunc_check(fun, lims=[-2, 2], test_complex=True, **kwargs):
         check([comp, matc])
 
 
-def binary_ufunc_check(fun, lims_A=[-2, 2], lims_B=[-2, 2], test_complex=True, **kwargs):
+def binary_ufunc_check(fun,
+                       lims_A=[-2, 2],
+                       lims_B=[-2, 2],
+                       test_complex=True,
+                       **kwargs):
     T_A = lambda x: transform(lims_A, x)
     T_B = lambda x: transform(lims_B, x)
     scalar = 0.6
@@ -41,17 +45,32 @@ def binary_ufunc_check(fun, lims_A=[-2, 2], lims_B=[-2, 2], test_complex=True, *
     mat = npr.rand(3, 2)
     mat2 = npr.rand(1, 2)
     check = combo_check(fun, (0, 1), **kwargs)
-    check([T_A(scalar), T_A(vector), T_A(mat), T_A(mat2)], [T_B(scalar), T_B(vector), T_B(mat), T_B(mat2)])
+    check([T_A(scalar), T_A(vector),
+           T_A(mat), T_A(mat2)],
+          [T_B(scalar), T_B(vector),
+           T_B(mat), T_B(mat2)])
     if test_complex:
         comp = 0.6 + 0.3j
         matc = npr.rand(3, 2) + 0.1j * npr.rand(3, 2)
         check(
-            [T_A(scalar), T_A(comp), T_A(vector), T_A(matc), T_A(mat2)],
-            [T_B(scalar), T_B(comp), T_B(vector), T_B(matc), T_B(mat2)],
+            [T_A(scalar),
+             T_A(comp),
+             T_A(vector),
+             T_A(matc),
+             T_A(mat2)],
+            [T_B(scalar),
+             T_B(comp),
+             T_B(vector),
+             T_B(matc),
+             T_B(mat2)],
         )
 
 
-def binary_ufunc_check_no_same_args(fun, lims_A=[-2, 2], lims_B=[-2, 2], test_complex=True, **kwargs):
+def binary_ufunc_check_no_same_args(fun,
+                                    lims_A=[-2, 2],
+                                    lims_B=[-2, 2],
+                                    test_complex=True,
+                                    **kwargs):
     T_A = lambda x: transform(lims_A, x)
     T_B = lambda x: transform(lims_B, x)
     scalar1 = 0.6
@@ -64,8 +83,10 @@ def binary_ufunc_check_no_same_args(fun, lims_A=[-2, 2], lims_B=[-2, 2], test_co
     mat22 = npr.rand(1, 2)
     check = combo_check(fun, (0, 1), **kwargs)
     check(
-        [T_A(scalar1), T_A(vector1), T_A(mat11), T_A(mat21)],
-        [T_B(scalar2), T_B(vector2), T_B(mat12), T_B(mat22)],
+        [T_A(scalar1), T_A(vector1),
+         T_A(mat11), T_A(mat21)],
+        [T_B(scalar2), T_B(vector2),
+         T_B(mat12), T_B(mat22)],
     )
     if test_complex:
         comp1 = 0.6 + 0.3j
@@ -73,8 +94,16 @@ def binary_ufunc_check_no_same_args(fun, lims_A=[-2, 2], lims_B=[-2, 2], test_co
         matc1 = npr.rand(3, 2) + 0.1j * npr.rand(3, 2)
         matc2 = npr.rand(3, 2) + 0.1j * npr.rand(3, 2)
         check(
-            [T_A(scalar1), T_A(comp1), T_A(vector1), T_A(matc1), T_A(mat21)],
-            [T_B(scalar2), T_B(comp2), T_B(vector2), T_B(matc2), T_B(mat22)],
+            [T_A(scalar1),
+             T_A(comp1),
+             T_A(vector1),
+             T_A(matc1),
+             T_A(mat21)],
+            [T_B(scalar2),
+             T_B(comp2),
+             T_B(vector2),
+             T_B(matc2),
+             T_B(mat22)],
         )
 
 

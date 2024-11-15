@@ -15,7 +15,8 @@ def test_jacobian_against_grad():
 def test_jacobian_scalar_to_vector():
     fun = lambda x: np.array([x, x**2, x**3])
     val = npr.randn()
-    assert np.allclose(jacobian(fun)(val), np.array([1.0, 2 * val, 3 * val**2]))
+    assert np.allclose(
+        jacobian(fun)(val), np.array([1.0, 2 * val, 3 * val**2]))
 
 
 def test_jacobian_against_stacked_grads():
@@ -42,4 +43,5 @@ def test_jacobian_higher_order():
     # assert jacobian(jacobian(jacobian(fun)))(npr.randn(2)).shape == (2,2,2,2,2)
 
     check_grads(lambda x: np.sum(np.sin(jacobian(fun)(x))))(npr.randn(2))
-    check_grads(lambda x: np.sum(np.sin(jacobian(jacobian(fun))(x))))(npr.randn(2))
+    check_grads(lambda x: np.sum(np.sin(jacobian(jacobian(fun))(x))))(
+        npr.randn(2))

@@ -53,6 +53,7 @@ def test_hess_vector_prod():
 
 
 def test_enclosing_scope_ref():
+
     def fun(x):
         inner_fun = lambda y: x * y
         return x * grad(inner_fun)(2.0)
@@ -61,6 +62,7 @@ def test_enclosing_scope_ref():
 
 
 def test_enclosing_scope_ref_2():
+
     def fun(x):
         inner_fun = lambda y: y * x
         return x * grad(inner_fun)(2.0)
@@ -69,6 +71,7 @@ def test_enclosing_scope_ref_2():
 
 
 def test_mutating_outgrad():
+
     def fun(a):
         b = a + 1.0
         c = b + 1.5
@@ -81,6 +84,7 @@ def test_mutating_outgrad():
 
 
 def test_mutating_outgrad_from_indexing():
+
     def fun(a):
         b = a + 1.0
         c = b[0] + 1.5
@@ -93,6 +97,7 @@ def test_mutating_outgrad_from_indexing():
 
 
 def test_complex_mutating_outgrad_from_indexing():
+
     def fun(a):
         b = a + 1.0j
         c = b[0] + 1.5
@@ -107,9 +112,10 @@ def test_complex_mutating_outgrad_from_indexing():
 
 
 def test_complex_separate_real_and_imaginary():
+
     def fun(a):
         r, i = np.real(a), np.imag(a)
-        a = np.abs(r) ** 1.4 + np.abs(i) ** 1.3
+        a = np.abs(r)**1.4 + np.abs(i)**1.3
         return np.sum(np.sin(a))
 
     d_fun = lambda x: grad(fun)(x)
@@ -182,6 +188,7 @@ def test_singleton_array_output_axis1_keepdims():
 
 
 def test_assignment_raises_error():
+
     def fun(A, b):
         A[1] = b
         return A

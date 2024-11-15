@@ -45,14 +45,22 @@ if __name__ == "__main__":
         return sigma_density + mu_density
 
     # Build variational objective.
-    objective, gradient, unpack_params = black_box_variational_inference(log_density, D, num_samples=2000)
+    objective, gradient, unpack_params = black_box_variational_inference(
+        log_density, D, num_samples=2000)
 
     # Set up plotting code
-    def plot_isocontours(ax, func, xlimits=[-2, 2], ylimits=[-4, 2], numticks=101):
+    def plot_isocontours(ax,
+                         func,
+                         xlimits=[-2, 2],
+                         ylimits=[-4, 2],
+                         numticks=101):
         x = np.linspace(*xlimits, num=numticks)
         y = np.linspace(*ylimits, num=numticks)
         X, Y = np.meshgrid(x, y)
-        zs = func(np.concatenate([np.atleast_2d(X.ravel()), np.atleast_2d(Y.ravel())]).T)
+        zs = func(
+            np.concatenate(
+                [np.atleast_2d(X.ravel()),
+                 np.atleast_2d(Y.ravel())]).T)
         Z = zs.reshape(X.shape)
         plt.contour(X, Y, Z)
         ax.set_yticks([])
@@ -72,7 +80,8 @@ if __name__ == "__main__":
         plot_isocontours(ax, target_distribution)
 
         mean, log_std = unpack_params(params)
-        variational_contour = lambda x: mvn.pdf(x, mean, np.diag(np.exp(2 * log_std)))
+        variational_contour = lambda x: mvn.pdf(x, mean,
+                                                np.diag(np.exp(2 * log_std)))
         plot_isocontours(ax, variational_contour)
         plt.draw()
         plt.pause(1.0 / 30.0)
@@ -81,4 +90,8 @@ if __name__ == "__main__":
     init_mean = -1 * np.ones(D)
     init_log_std = -5 * np.ones(D)
     init_var_params = np.concatenate([init_mean, init_log_std])
-    variational_params = adam(gradient, init_var_params, step_size=0.1, num_iters=2000, callback=callback)
+    variational_params = adam(gradient,
+                              init_var_params,
+                              step_size=0.1,
+                              num_iters=2000,
+                              callback=callback)

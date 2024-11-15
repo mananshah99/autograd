@@ -42,13 +42,16 @@ def make_gp_funs(cov_func, num_cov_params):
 def rbf_covariance(kernel_params, x, xp):
     output_scale = np.exp(kernel_params[0])
     lengthscales = np.exp(kernel_params[1:])
-    diffs = np.expand_dims(x / lengthscales, 1) - np.expand_dims(xp / lengthscales, 0)
+    diffs = np.expand_dims(x / lengthscales, 1) - np.expand_dims(
+        xp / lengthscales, 0)
     return output_scale * np.exp(-0.5 * np.sum(diffs**2, axis=2))
 
 
 def build_toy_dataset(D=1, n_data=20, noise_std=0.1):
     rs = npr.RandomState(0)
-    inputs = np.concatenate([np.linspace(0, 3, num=n_data / 2), np.linspace(6, 8, num=n_data / 2)])
+    inputs = np.concatenate(
+        [np.linspace(0, 3, num=n_data / 2),
+         np.linspace(6, 8, num=n_data / 2)])
     targets = (np.cos(inputs) + rs.randn(n_data) * noise_std) / 2.0
     inputs = (inputs - 4.0) / 2.0
     inputs = inputs.reshape((len(inputs), D))
@@ -59,7 +62,8 @@ if __name__ == "__main__":
     D = 1
 
     # Build model and objective function.
-    num_params, predict, log_marginal_likelihood = make_gp_funs(rbf_covariance, num_cov_params=D + 1)
+    num_params, predict, log_marginal_likelihood = make_gp_funs(
+        rbf_covariance, num_cov_params=D + 1)
 
     X, y = build_toy_dataset(D=D)
     objective = lambda params: -log_marginal_likelihood(params, X, y)
@@ -80,7 +84,10 @@ if __name__ == "__main__":
         ax.plot(plot_xs, pred_mean, "b")
         ax.fill(
             np.concatenate([plot_xs, plot_xs[::-1]]),
-            np.concatenate([pred_mean - 1.96 * marg_std, (pred_mean + 1.96 * marg_std)[::-1]]),
+            np.concatenate([
+                pred_mean - 1.96 * marg_std,
+                (pred_mean + 1.96 * marg_std)[::-1]
+            ]),
             alpha=0.15,
             fc="Blue",
             ec="None",
@@ -103,5 +110,9 @@ if __name__ == "__main__":
     init_params = 0.1 * rs.randn(num_params)
 
     print("Optimizing covariance parameters...")
-    cov_params = minimize(value_and_grad(objective), init_params, jac=True, method="CG", callback=callback)
+    cov_params = minimize(value_and_grad(objective),
+                          init_params,
+                          jac=True,
+                          method="CG",
+                          callback=callback)
     plt.pause(10.0)

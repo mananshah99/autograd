@@ -36,6 +36,7 @@ dot_graph = "digraph G {{{}}}".format
 
 
 def graph_to_dotfile(graph):
+
     visited = set()
 
     def node_to_fragment(node):

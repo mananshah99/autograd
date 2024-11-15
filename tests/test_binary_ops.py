@@ -57,7 +57,8 @@ def test_mod():
 
 def test_pow():
     fun = lambda x, y: x**y
-    make_positive = lambda x: np.abs(x) + 1.1  # Numeric derivatives fail near zero
+    make_positive = lambda x: np.abs(
+        x) + 1.1  # Numeric derivatives fail near zero
     for arg1, arg2 in arg_pairs():
         arg1 = make_positive(arg1)
         check_grads(fun)(arg1, arg2)

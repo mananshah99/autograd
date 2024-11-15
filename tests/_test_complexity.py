@@ -22,6 +22,7 @@ def assert_linear_time(f):
 
 
 def test_array_creation():
+
     def fun(x, N):
         arr = [x for i in range(N)]
         return np.sum(np.array(arr))
@@ -30,6 +31,7 @@ def test_array_creation():
 
 
 def test_array_indexing():
+
     def fun(x):
         return sum([x[i] for i in range(len(x))])
 
@@ -37,6 +39,7 @@ def test_array_indexing():
 
 
 def test_list_indexing():
+
     def fun(x):
         return sum([x[i] for i in range(len(x))])
 
@@ -44,6 +47,7 @@ def test_list_indexing():
 
 
 def test_list_creation():
+
     def fun(x, N):
         return make_list(*[x for _ in range(N)])
 
@@ -52,6 +56,7 @@ def test_list_creation():
 
 # This fails. Need to figure out why
 def test_array_creation_fwd():
+
     def fun(x, N):
         arr = [x for i in range(N)]
         return np.sum(np.array(arr))

@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 
 import autograd.numpy as np
 from autograd import elementwise_grad as egrad
-
 """
 Mathematically we can only take gradients of scalar-valued functions, but
 autograd's elementwise_grad function also handles numpy's familiar vectorization

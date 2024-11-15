@@ -39,7 +39,8 @@ def init_random_params(scale, layer_sizes, rs=npr.RandomState(0)):
 
 def batch_normalize(activations):
     mbmean = np.mean(activations, axis=0, keepdims=True)
-    return (activations - mbmean) / (np.std(activations, axis=0, keepdims=True) + 1)
+    return (activations -
+            mbmean) / (np.std(activations, axis=0, keepdims=True) + 1)
 
 
 def neural_net_predict(params, inputs):
@@ -61,7 +62,8 @@ def generate_from_noise(gen_params, num_samples, noise_dim, rs):
     return sigmoid(samples)
 
 
-def gan_objective(gen_params, dsc_params, real_data, num_samples, noise_dim, rs):
+def gan_objective(gen_params, dsc_params, real_data, num_samples, noise_dim,
+                  rs):
     fake_data = generate_from_noise(gen_params, num_samples, noise_dim, rs)
     logprobs_fake = logsigmoid(neural_net_predict(dsc_params, fake_data))
     logprobs_real = logsigmoid(neural_net_predict(dsc_params, real_data))
@@ -94,25 +96,25 @@ def adam_minimax(
     m_min = np.zeros(len(x_min))
     v_min = np.zeros(len(x_min))
     for i in range(num_iters):
-        g_max_uf, g_min_uf = grad_both(unflatten_max(x_max), unflatten_min(x_min), i)
+        g_max_uf, g_min_uf = grad_both(unflatten_max(x_max),
+                                       unflatten_min(x_min), i)
         g_max, _ = flatten(g_max_uf)
         g_min, _ = flatten(g_min_uf)
 
         if callback:
-            callback(
-                unflatten_max(x_max), unflatten_min(x_min), i, unflatten_max(g_max), unflatten_min(g_min)
-            )
+            callback(unflatten_max(x_max), unflatten_min(x_min), i,
+                     unflatten_max(g_max), unflatten_min(g_min))
 
         m_max = (1 - b1) * g_max + b1 * m_max  # First  moment estimate.
         v_max = (1 - b2) * (g_max**2) + b2 * v_max  # Second moment estimate.
-        mhat_max = m_max / (1 - b1 ** (i + 1))  # Bias correction.
-        vhat_max = v_max / (1 - b2 ** (i + 1))
+        mhat_max = m_max / (1 - b1**(i + 1))  # Bias correction.
+        vhat_max = v_max / (1 - b2**(i + 1))
         x_max = x_max + step_size_max * mhat_max / (np.sqrt(vhat_max) + eps)
 
         m_min = (1 - b1) * g_min + b1 * m_min  # First  moment estimate.
         v_min = (1 - b2) * (g_min**2) + b2 * v_min  # Second moment estimate.
-        mhat_min = m_min / (1 - b1 ** (i + 1))  # Bias correction.
-        vhat_min = v_min / (1 - b2 ** (i + 1))
+        mhat_min = m_min / (1 - b1**(i + 1))  # Bias correction.
+        vhat_min = v_min / (1 - b2**(i + 1))
         x_min = x_min - step_size_min * mhat_min / (np.sqrt(vhat_min) + eps)
     return unflatten_max(x_max), unflatten_min(x_min)
 
@@ -149,21 +151,28 @@ if __name__ == "__main__":
 
     def objective(gen_params, dsc_params, iter):
         idx = batch_indices(iter)
-        return gan_objective(gen_params, dsc_params, train_images[idx], batch_size, noise_dim, seed)
+        return gan_objective(gen_params, dsc_params, train_images[idx],
+                             batch_size, noise_dim, seed)
 
     # Get gradients of objective using autograd.
     both_objective_grad = grad(objective, argnum=(0, 1))
 
-    print("     Epoch     |    Objective  |       Fake probability | Real Probability  ")
+    print(
+        "     Epoch     |    Objective  |       Fake probability | Real Probability  "
+    )
 
     def print_perf(gen_params, dsc_params, iter, gen_gradient, dsc_gradient):
         if iter % 10 == 0:
             ability = np.mean(objective(gen_params, dsc_params, iter))
             fake_data = generate_from_noise(gen_params, 20, noise_dim, seed)
             real_data = train_images[batch_indices(iter)]
-            probs_fake = np.mean(sigmoid(neural_net_predict(dsc_params, fake_data)))
-            probs_real = np.mean(sigmoid(neural_net_predict(dsc_params, real_data)))
-            print(f"{iter // num_batches:15}|{ability:20}|{probs_fake:20}|{probs_real:20}")
+            probs_fake = np.mean(
+                sigmoid(neural_net_predict(dsc_params, fake_data)))
+            probs_real = np.mean(
+                sigmoid(neural_net_predict(dsc_params, real_data)))
+            print(
+                f"{iter // num_batches:15}|{ability:20}|{probs_fake:20}|{probs_real:20}"
+            )
             save_images(fake_data, "gan_samples.png", vmin=0, vmax=1)
 
     # The optimizers provided can optimize lists, tuples, or dicts of parameters.

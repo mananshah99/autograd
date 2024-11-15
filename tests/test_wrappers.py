@@ -35,7 +35,7 @@ def test_return_both():
 
 
 def test_value_and_grad():
-    fun = lambda x: np.sum(np.sin(x) ** 2)
+    fun = lambda x: np.sum(np.sin(x)**2)
     dfun = grad(fun)
     dfun_both = value_and_grad(fun)
     x = npr.randn(5)
@@ -63,6 +63,7 @@ def test_hessian():
 
 
 def test_multigrad():
+
     def complicated_fun(a, b, c, d, e, f=1.1, g=9.0):
         return a + np.sin(b) + np.cosh(c) + np.cos(d) + np.tan(e) + f + g
 
@@ -84,6 +85,7 @@ def test_multigrad():
 
 
 def test_value_and_multigrad():
+
     def complicated_fun(a, b, c, d, e, f=1.1, g=9.0):
         return a + np.sin(b) + np.cosh(c) + np.cos(d) + np.tan(e) + f + g
 
@@ -98,19 +100,23 @@ def test_value_and_multigrad():
     dfun = grad(complicated_fun, argnum=[3, 1])
     dfun_both = value_and_grad(complicated_fun, argnum=[3, 1])
 
-    check_equivalent(complicated_fun(A, B, C, D, E, f=F, g=G), dfun_both(A, B, C, D, E, f=F, g=G)[0])
+    check_equivalent(complicated_fun(A, B, C, D, E, f=F, g=G),
+                     dfun_both(A, B, C, D, E, f=F, g=G)[0])
 
-    check_equivalent(dfun(A, B, C, D, E, f=F, g=G), dfun_both(A, B, C, D, E, f=F, g=G)[1])
+    check_equivalent(dfun(A, B, C, D, E, f=F, g=G),
+                     dfun_both(A, B, C, D, E, f=F, g=G)[1])
 
 
 def test_multigrad_onearg():
     fun = lambda x, y: np.sum(x + np.sin(y))
     packed_fun = lambda xy: np.sum(xy[0] + np.sin(xy[1]))
     A, B = npr.randn(3), npr.randn(3)
-    check_equivalent(grad(fun, argnum=[0])(A, B), (grad(packed_fun)((A, B))[0],))
+    check_equivalent(
+        grad(fun, argnum=[0])(A, B), (grad(packed_fun)((A, B))[0], ))
 
 
 def test_elementwise_grad():
+
     def simple_fun(a):
         return a + np.sin(a) + np.cosh(a)
 
@@ -122,6 +128,7 @@ def test_elementwise_grad():
 
 
 def test_elementwise_grad_multiple_args():
+
     def simple_fun(a, b):
         return a + np.sin(a) + np.cosh(b)
 
@@ -130,7 +137,8 @@ def test_elementwise_grad_multiple_args():
     argnum = 1
 
     wrapped = elementwise_grad(simple_fun, argnum)(A, B)
-    explicit = np.array([grad(simple_fun, argnum)(A, B[i]) for i in range(len(B))])
+    explicit = np.array(
+        [grad(simple_fun, argnum)(A, B[i]) for i in range(len(B))])
     check_equivalent(wrapped, explicit)
 
 
@@ -164,7 +172,8 @@ def test_hessian_tensor_product_3d():
     a = npr.randn(5, 4, 3)
     V = npr.randn(5, 4, 3)
     H = hessian(fun)(a)
-    check_equivalent(np.tensordot(H, V, axes=np.ndim(V)), hessian_tensor_product(fun)(a, V))
+    check_equivalent(np.tensordot(H, V, axes=np.ndim(V)),
+                     hessian_tensor_product(fun)(a, V))
 
 
 def test_tensor_jacobian_product():
@@ -189,7 +198,8 @@ def test_tensor_jacobian_product():
     a = npr.randn(5, 4, 3)
     V = npr.randn(5, 4)
     J = jacobian(fun)(a)
-    check_equivalent(np.tensordot(V, J, axes=np.ndim(V)), tensor_jacobian_product(fun)(a, V))
+    check_equivalent(np.tensordot(V, J, axes=np.ndim(V)),
+                     tensor_jacobian_product(fun)(a, V))
 
 
 def test_deprecated_defgrad_wrapper():
@@ -253,10 +263,11 @@ def test_deprecated_quick_grad_check_wrapper():
     from autograd.util import quick_grad_check
 
     with warnings.catch_warnings(record=True) as w:
-        quick_grad_check(lambda x, y: x**2 + y, 1.0, (2.0,))
+        quick_grad_check(lambda x, y: x**2 + y, 1.0, (2.0, ))
 
 
 def test_partial():
+
     def f(x, y):
         return x
 
@@ -264,6 +275,7 @@ def test_partial():
 
 
 def test_dtypes():
+
     def f(x):
         return np.real(np.sum(x**2))
 
@@ -339,6 +351,7 @@ def test_make_jvp():
 
 
 def _make_explicit_ggnvp(f, g=lambda x: 1.0 / 2 * np.dot(x, x)):
+
     def ggnvp_maker(x):
         J = jacobian(f)(x)
         H = hessian(g)(f(x))
@@ -371,10 +384,14 @@ def test_make_ggnvp_nondefault_g():
     g = lambda y: np.sum(2.0 * y**2 + y**4)
 
     fun = lambda x: np.dot(A, x)
-    check_equivalent(make_ggnvp(fun, g)(x)(v), _make_explicit_ggnvp(fun, g)(x)(v))
+    check_equivalent(
+        make_ggnvp(fun, g)(x)(v),
+        _make_explicit_ggnvp(fun, g)(x)(v))
 
     fun2 = lambda x: np.tanh(np.dot(A, x))
-    check_equivalent(make_ggnvp(fun2, g)(x)(v), _make_explicit_ggnvp(fun2, g)(x)(v))
+    check_equivalent(
+        make_ggnvp(fun2, g)(x)(v),
+        _make_explicit_ggnvp(fun2, g)(x)(v))
 
 
 def test_grad_and_aux():
@@ -403,12 +420,15 @@ def test_grad_and_aux():
 
 
 def test_wrapped_name_and_docs():
+
     def foo(x):
         pass
 
     assert grad.__name__ == "grad"
     # Python 3.13: Compiler now strip indents from docstrings.
     # https://docs.python.org/3.13/whatsnew/3.13.html#other-language-changes
-    assert grad.__doc__.startswith(tuple(f"\n{indent}Returns a function which" for indent in ("    ", "")))
+    assert grad.__doc__.startswith(
+        tuple(f"\n{indent}Returns a function which"
+              for indent in ("    ", "")))
     assert grad(foo, 1).__name__ == "grad_of_foo_wrt_argnum_1"
     assert grad(foo, 1).__doc__.startswith("    grad of function foo with")

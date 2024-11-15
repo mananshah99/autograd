@@ -51,7 +51,8 @@ if __name__ == "__main__":
     true_noise_var = 1.0
     n_samples = 200
 
-    num_weights, sample, logprob, unpack_weights = make_ica_funs(observed_dimension, latent_dimension)
+    num_weights, sample, logprob, unpack_weights = make_ica_funs(
+        observed_dimension, latent_dimension)
 
     num_latent_params = latent_dimension * n_samples
     total_num_params = num_weights + num_latent_params + 1
@@ -59,15 +60,16 @@ if __name__ == "__main__":
     def unpack_params(params):
         weights = unpack_weights(params[:num_weights])
         latents = np.reshape(
-            params[num_weights : num_weights + num_latent_params], (latent_dimension, n_samples)
-        )
+            params[num_weights:num_weights + num_latent_params],
+            (latent_dimension, n_samples))
         noise_std = np.exp(params[-1])
         return weights, latents, noise_std
 
     rs = npr.RandomState(0)
     true_weights = np.zeros((observed_dimension, latent_dimension))
     for i in range(latent_dimension):
-        true_weights[:, i] = np.sin(np.linspace(0, 4 + i * 3.2, observed_dimension))
+        true_weights[:, i] = np.sin(
+            np.linspace(0, 4 + i * 3.2, observed_dimension))
 
     true_latents, data = sample(true_weights, n_samples, true_noise_var, rs)
 
@@ -115,5 +117,9 @@ if __name__ == "__main__":
     # Initialize and optimize model.
     rs = npr.RandomState(0)
     init_params = rs.randn(total_num_params)
-    minimize(value_and_grad(objective), init_params, jac=True, method="CG", callback=callback)
+    minimize(value_and_grad(objective),
+             init_params,
+             jac=True,
+             method="CG",
+             callback=callback)
     plt.pause(20)

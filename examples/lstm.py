@@ -13,7 +13,12 @@ from autograd.misc.optimizers import adam
 from autograd.scipy.special import logsumexp
 
 
-def init_lstm_params(input_size, state_size, output_size, param_scale=0.01, rs=npr.RandomState(0)):
+def init_lstm_params(input_size,
+                     state_size,
+                     output_size,
+                     param_scale=0.01,
+                     rs=npr.RandomState(0)):
+
     def rp(*shape):
         return rs.randn(*shape) * param_scale
 
@@ -29,18 +34,21 @@ def init_lstm_params(input_size, state_size, output_size, param_scale=0.01, rs=n
 
 
 def lstm_predict(params, inputs):
+
     def update_lstm(input, hiddens, cells):
         change = np.tanh(concat_and_multiply(params["change"], input, hiddens))
         forget = sigmoid(concat_and_multiply(params["forget"], input, hiddens))
         ingate = sigmoid(concat_and_multiply(params["ingate"], input, hiddens))
-        outgate = sigmoid(concat_and_multiply(params["outgate"], input, hiddens))
+        outgate = sigmoid(
+            concat_and_multiply(params["outgate"], input, hiddens))
         cells = cells * forget + ingate * change
         hiddens = outgate * np.tanh(cells)
         return hiddens, cells
 
     def hiddens_to_output_probs(hiddens):
         output = concat_and_multiply(params["predict"], hiddens)
-        return output - logsumexp(output, axis=1, keepdims=True)  # Normalize log-probs.
+        return output - logsumexp(output, axis=1,
+                                  keepdims=True)  # Normalize log-probs.
 
     num_sequences = inputs.shape[1]
     hiddens = np.repeat(params["init hiddens"], num_sequences, axis=0)
@@ -67,9 +75,15 @@ if __name__ == "__main__":
 
     # Learn to predict our own source code.
     text_filename = join(dirname(__file__), "lstm.py")
-    train_inputs = build_dataset(text_filename, sequence_length=30, alphabet_size=num_chars, max_lines=60)
+    train_inputs = build_dataset(text_filename,
+                                 sequence_length=30,
+                                 alphabet_size=num_chars,
+                                 max_lines=60)
 
-    init_params = init_lstm_params(input_size=128, output_size=128, state_size=40, param_scale=0.01)
+    init_params = init_lstm_params(input_size=128,
+                                   output_size=128,
+                                   state_size=40,
+                                   param_scale=0.01)
 
     def print_training_prediction(weights):
         print("Training text                         Predicted text")
@@ -77,7 +91,9 @@ if __name__ == "__main__":
         for t in range(logprobs.shape[1]):
             training_text = one_hot_to_string(train_inputs[:, t, :])
             predicted_text = one_hot_to_string(logprobs[:, t, :])
-            print(training_text.replace("\n", " ") + "|" + predicted_text.replace("\n", " "))
+            print(
+                training_text.replace("\n", " ") + "|" +
+                predicted_text.replace("\n", " "))
 
     def training_loss(params, iter):
         return -lstm_log_likelihood(params, train_inputs, train_inputs)
@@ -91,7 +107,11 @@ if __name__ == "__main__":
     training_loss_grad = grad(training_loss)
 
     print("Training LSTM...")
-    trained_params = adam(training_loss_grad, init_params, step_size=0.1, num_iters=1000, callback=callback)
+    trained_params = adam(training_loss_grad,
+                          init_params,
+                          step_size=0.1,
+                          num_iters=1000,
+                          callback=callback)
 
     print()
     print("Generating text from LSTM...")

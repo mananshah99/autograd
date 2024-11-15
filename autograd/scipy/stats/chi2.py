@@ -17,9 +17,15 @@ def grad_chi2_logpdf(x, df):
 defvjp(
     cdf,
     lambda ans, x, df: unbroadcast_f(
-        x, lambda g: g * np.power(2.0, -df / 2) * np.exp(-x / 2) * np.power(x, df / 2 - 1) / gamma(df / 2)
-    ),
+        x, lambda g: g * np.power(2.0, -df / 2) * np.exp(-x / 2) * np.power(
+            x, df / 2 - 1) / gamma(df / 2)),
     argnums=[0],
 )
-defvjp(logpdf, lambda ans, x, df: unbroadcast_f(x, lambda g: g * grad_chi2_logpdf(x, df)), argnums=[0])
-defvjp(pdf, lambda ans, x, df: unbroadcast_f(x, lambda g: g * ans * grad_chi2_logpdf(x, df)), argnums=[0])
+defvjp(
+    logpdf,
+    lambda ans, x, df: unbroadcast_f(x, lambda g: g * grad_chi2_logpdf(x, df)),
+    argnums=[0])
+defvjp(pdf,
+       lambda ans, x, df: unbroadcast_f(
+           x, lambda g: g * ans * grad_chi2_logpdf(x, df)),
+       argnums=[0])

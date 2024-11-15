@@ -1,5 +1,6 @@
 from functools import reduce
 from itertools import count
+from typing_extensions import override
 
 from .tracer import Box, Node, getval, isbox, primitive, toposort, trace
 from .util import func, subval
@@ -41,9 +42,11 @@ class VJPNode(Node):
             vjpmaker = primitive_vjps[fun]
         except KeyError:
             fun_name = getattr(fun, "__name__", fun)
-            raise NotImplementedError(f"VJP of {fun_name} wrt argnums {parent_argnums} not defined")
+            raise NotImplementedError(
+                f"VJP of {fun_name} wrt argnums {parent_argnums} not defined")
         self.vjp = vjpmaker(parent_argnums, value, args, kwargs)
 
+    @override
     def initialize_root(self):
         self.parents = []
         self.vjp = lambda g: ()
@@ -57,6 +60,7 @@ def defvjp_argnums(fun, vjpmaker):
 
 
 def defvjp_argnum(fun, vjpmaker):
+
     def vjp_argnums(argnums, *args):
         vjps = [vjpmaker(argnum, *args) for argnum in argnums]
         return lambda g: (vjp(g) for vjp in vjps)
@@ -67,7 +71,8 @@ def defvjp_argnum(fun, vjpmaker):
 def defvjp(fun, *vjpmakers, **kwargs):
     argnums = kwargs.get("argnums", count())
     vjps_dict = {
-        argnum: translate_vjp(vjpmaker, fun, argnum) for argnum, vjpmaker in zip(argnums, vjpmakers)
+        argnum: translate_vjp(vjpmaker, fun, argnum)
+        for argnum, vjpmaker in zip(argnums, vjpmakers)
     }
 
     def vjp_argnums(argnums, ans, args, kwargs):
@@ -78,21 +83,25 @@ def defvjp(fun, *vjpmakers, **kwargs):
             try:
                 vjpfun = vjps_dict[argnum]
             except KeyError:
-                raise NotImplementedError(f"VJP of {fun.__name__} wrt argnum 0 not defined")
+                raise NotImplementedError(
+                    f"VJP of {fun.__name__} wrt argnum 0 not defined")
             vjp = vjpfun(ans, *args, **kwargs)
-            return lambda g: (vjp(g),)
+            return lambda g: (vjp(g), )
         elif L == 2:
             argnum_0, argnum_1 = argnums
             try:
                 vjp_0_fun = vjps_dict[argnum_0]
                 vjp_1_fun = vjps_dict[argnum_1]
             except KeyError:
-                raise NotImplementedError(f"VJP of {fun.__name__} wrt argnums 0, 1 not defined")
+                raise NotImplementedError(
+                    f"VJP of {fun.__name__} wrt argnums 0, 1 not defined")
             vjp_0 = vjp_0_fun(ans, *args, **kwargs)
             vjp_1 = vjp_1_fun(ans, *args, **kwargs)
             return lambda g: (vjp_0(g), vjp_1(g))
         else:
-            vjps = [vjps_dict[argnum](ans, *args, **kwargs) for argnum in argnums]
+            vjps = [
+                vjps_dict[argnum](ans, *args, **kwargs) for argnum in argnums
+            ]
             return lambda g: (vjp(g) for vjp in vjps)
 
     defvjp_argnums(fun, vjp_argnums)
@@ -100,7 +109,8 @@ def defvjp(fun, *vjpmakers, **kwargs):
 
 def translate_vjp(vjpfun, fun, argnum):
     if vjpfun is None:
-        return lambda ans, *args, **kwargs: lambda g: vspace(args[argnum]).zeros()
+        return lambda ans, *args, **kwargs: lambda g: vspace(args[argnum]
+                                                             ).zeros()
     elif callable(vjpfun):
         return vjpfun
     else:
@@ -111,6 +121,7 @@ def translate_vjp(vjpfun, fun, argnum):
 
 
 def make_jvp(fun, x):
+
     def jvp(g):
         start_node = JVPNode.new_root(g)
         end_value, end_node = trace(start_node, fun, x)
@@ -131,7 +142,8 @@ class JVPNode(Node):
             jvpmaker = primitive_jvps[fun]
         except KeyError:
             name = getattr(fun, "__name__", fun)
-            raise NotImplementedError(f"JVP of {name} wrt argnums {parent_argnums} not defined")
+            raise NotImplementedError(
+                f"JVP of {name} wrt argnums {parent_argnums} not defined")
         self.g = jvpmaker(parent_argnums, parent_gs, value, args, kwargs)
 
     def initialize_root(self, g):
@@ -146,18 +158,25 @@ def defjvp_argnums(fun, jvpmaker):
 
 
 def defjvp_argnum(fun, jvpmaker):
+
     def jvp_argnums(argnums, gs, ans, args, kwargs):
-        return sum_outgrads(jvpmaker(argnum, g, ans, args, kwargs) for argnum, g in zip(argnums, gs))
+        return sum_outgrads(
+            jvpmaker(argnum, g, ans, args, kwargs)
+            for argnum, g in zip(argnums, gs))
 
     defjvp_argnums(fun, jvp_argnums)
 
 
 def defjvp(fun, *jvpfuns, **kwargs):
     argnums = kwargs.get("argnums", count())
-    jvps_dict = {argnum: translate_jvp(jvpfun, fun, argnum) for argnum, jvpfun in zip(argnums, jvpfuns)}
+    jvps_dict = {
+        argnum: translate_jvp(jvpfun, fun, argnum)
+        for argnum, jvpfun in zip(argnums, jvpfuns)
+    }
 
     def jvp_argnums(argnums, gs, ans, args, kwargs):
-        return sum_outgrads(jvps_dict[argnum](g, ans, *args, **kwargs) for argnum, g in zip(argnums, gs))
+        return sum_outgrads(jvps_dict[argnum](g, ans, *args, **kwargs)
+                            for argnum, g in zip(argnums, gs))
 
     defjvp_argnums(fun, jvp_argnums)
 
@@ -166,7 +185,8 @@ def translate_jvp(jvpfun, fun, argnum):
     if jvpfun is None:
         return lambda g, ans, *a, **k: vspace(ans).zeros()
     elif jvpfun == "same":
-        return lambda g, ans, *args, **kwargs: fun(*subval(args, argnum, g), **kwargs)
+        return lambda g, ans, *args, **kwargs: fun(*subval(args, argnum, g), **
+                                                   kwargs)
     elif callable(jvpfun):
         return jvpfun
     else:
@@ -175,7 +195,9 @@ def translate_jvp(jvpfun, fun, argnum):
 
 def def_linear(fun):
     """Flags that a function is linear wrt all args"""
-    defjvp_argnum(fun, lambda argnum, g, ans, args, kwargs: fun(*subval(args, argnum, g), **kwargs))
+    defjvp_argnum(
+        fun, lambda argnum, g, ans, args, kwargs: fun(*subval(args, argnum, g),
+                                                      **kwargs))
 
 
 # -------------------- vector behavior --------------------
@@ -292,11 +314,9 @@ def vspace(value):
         if isbox(value):
             return vspace(getval(value))
         else:
-            raise TypeError(
-                "Can't find vector space for value {} of type {}. " "Valid types are {}".format(
-                    value, type(value), VSpace.mappings.keys()
-                )
-            )
+            raise TypeError("Can't find vector space for value {} of type {}. "
+                            "Valid types are {}".format(
+                                value, type(value), VSpace.mappings.keys()))
 
 
 class SparseBox(Box):
@@ -327,11 +347,13 @@ defvjp(
     lambda ans, vs, x, y: lambda g: vs.covector(vs.scalar_mul(y, g)),
     lambda ans, vs, x, y: lambda g: vs.covector(vs.scalar_mul(x, g)),
 )
-defvjp(func(VSpace.covector), None, lambda ans, vs, x: lambda g: vs.covector(g))
+defvjp(func(VSpace.covector), None,
+       lambda ans, vs, x: lambda g: vs.covector(g))
 defvjp(
     func(VSpace.scalar_mul),
     None,
-    lambda ans, vs, x, a: lambda g: vs.covector(vs.scalar_mul(vs.covector(g), a)),
+    lambda ans, vs, x, a: lambda g: vs.covector(
+        vs.scalar_mul(vs.covector(g), a)),
     lambda ans, vs, x, a: lambda g: vs.inner_prod(g, vs.covector(x)),
 )
 
@@ -363,6 +385,7 @@ def deprecated_defvjp(primitive_fun):
         warnings.warn(deprecation_msg)
 
         def staged_vjpmaker(ans, *args, **kwargs):
+
             def vjp(g):
                 vs, gvs = vspace(args[argnum]), vspace(g)
                 return vjpmaker(g, ans, vs, gvs, *args, **kwargs)
@@ -370,7 +393,8 @@ def deprecated_defvjp(primitive_fun):
             return vjp
 
         vjpfuns[argnum] = staged_vjpmaker
-        argnums, vjpmakers = zip(*[(argnum, vjpfuns[argnum]) for argnum in sorted(vjpfuns.keys())])
+        argnums, vjpmakers = zip(*[(argnum, vjpfuns[argnum])
+                                   for argnum in sorted(vjpfuns.keys())])
         defvjp(primitive_fun, *vjpmakers, argnums=argnums)
 
     return defvjp_unstaged
@@ -380,7 +404,7 @@ def deprecated_defvjp_is_zero(primitive_fun):
     deprecation_msg = deprecated_defvjp_message.format("defvjp_is_zero")
     zero_vjps = [set()]
 
-    def defvjp_is_zero(argnums=(0,)):
+    def defvjp_is_zero(argnums=(0, )):
         warnings.warn(deprecation_msg)
         zero_vjps[0] |= set(argnums)
         nones = [None] * len(zero_vjps[0])
@@ -396,7 +420,8 @@ def deprecated_defgrad(primitive_fun):
     def defgrad(gradfun, argnum=0):
         warnings.warn(deprecation_msg)
         gradfuns[argnum] = gradfun
-        argnums, vjpmakers = zip(*[(argnum, gradfuns[argnum]) for argnum in sorted(gradfuns.keys())])
+        argnums, vjpmakers = zip(*[(argnum, gradfuns[argnum])
+                                   for argnum in sorted(gradfuns.keys())])
         defvjp(primitive_fun, *vjpmakers, argnums=argnums)
 
     return defgrad

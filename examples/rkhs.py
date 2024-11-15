@@ -11,6 +11,7 @@ from autograd.util import func
 
 
 class RKHSFun:
+
     def __init__(self, kernel, alphas={}):
         self.alphas = alphas
         self.kernel = kernel
@@ -18,7 +19,9 @@ class RKHSFun:
 
     @primitive
     def __call__(self, x):
-        return sum([a * self.kernel(x, x_repr) for x_repr, a in self.alphas.items()], 0.0)
+        return sum(
+            [a * self.kernel(x, x_repr) for x_repr, a in self.alphas.items()],
+            0.0)
 
     def __add__(self, f):
         return self.vs.add(self, f)
@@ -28,10 +31,12 @@ class RKHSFun:
 
 
 # TODO: add vjp of __call__ wrt x (and show it in action)
-defvjp(func(RKHSFun.__call__), lambda ans, f, x: lambda g: RKHSFun(f.kernel, {x: 1}) * g)
+defvjp(func(RKHSFun.__call__),
+       lambda ans, f, x: lambda g: RKHSFun(f.kernel, {x: 1}) * g)
 
 
 class RKHSFunBox(Box, RKHSFun):
+
     @property
     def kernel(self):
         return self._value.kernel
@@ -41,6 +46,7 @@ RKHSFunBox.register(RKHSFun)
 
 
 class RKHSFunVSpace(VSpace):
+
     def __init__(self, value):
         self.kernel = value.kernel
 
@@ -57,13 +63,17 @@ class RKHSFunVSpace(VSpace):
         return RKHSFun(f.kernel, add_dicts(f.alphas, g.alphas))
 
     def _scalar_mul(self, f, a):
-        return RKHSFun(f.kernel, {x: a * a_cur for x, a_cur in f.alphas.items()})
+        return RKHSFun(f.kernel, {
+            x: a * a_cur
+            for x, a_cur in f.alphas.items()
+        })
 
     def _inner_prod(self, f, g):
         assert f.kernel is g.kernel
-        return sum(
-            [a1 * a2 * f.kernel(x1, x2) for x1, a1 in f.alphas.items() for x2, a2 in g.alphas.items()], 0.0
-        )
+        return sum([
+            a1 * a2 * f.kernel(x1, x2) for x1, a1 in f.alphas.items()
+            for x2, a2 in g.alphas.items()
+        ], 0.0)
 
 
 RKHSFunVSpace.register(RKHSFun)
@@ -79,13 +89,13 @@ def add_dicts(d1, d2):
 if __name__ == "__main__":
 
     def sq_exp_kernel(x1, x2):
-        return np.exp(-((x1 - x2) ** 2))
+        return np.exp(-((x1 - x2)**2))
 
     xs = range(5)
     ys = [1, 2, 3, 2, 1]
 
     def logprob(f, xs, ys):
-        return -sum((f(x) - y) ** 2 for x, y in zip(xs, ys))
+        return -sum((f(x) - y)**2 for x, y in zip(xs, ys))
 
     f = RKHSFun(sq_exp_kernel)
     for i in range(100):

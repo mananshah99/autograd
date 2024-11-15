@@ -18,28 +18,35 @@ def sigmoid(x):
 
 
 def concat_and_multiply(weights, *args):
-    cat_state = np.hstack(args + (np.ones((args[0].shape[0], 1)),))
+    cat_state = np.hstack(args + (np.ones((args[0].shape[0], 1)), ))
     return np.dot(cat_state, weights)
 
 
 ### Define recurrent neural net #######
 
 
-def create_rnn_params(input_size, state_size, output_size, param_scale=0.01, rs=npr.RandomState(0)):
+def create_rnn_params(input_size,
+                      state_size,
+                      output_size,
+                      param_scale=0.01,
+                      rs=npr.RandomState(0)):
     return {
         "init hiddens": rs.randn(1, state_size) * param_scale,
-        "change": rs.randn(input_size + state_size + 1, state_size) * param_scale,
+        "change":
+        rs.randn(input_size + state_size + 1, state_size) * param_scale,
         "predict": rs.randn(state_size + 1, output_size) * param_scale,
     }
 
 
 def rnn_predict(params, inputs):
+
     def update_rnn(input, hiddens):
         return np.tanh(concat_and_multiply(params["change"], input, hiddens))
 
     def hiddens_to_output_probs(hiddens):
         output = concat_and_multiply(params["predict"], hiddens)
-        return output - logsumexp(output, axis=1, keepdims=True)  # Normalize log-probs.
+        return output - logsumexp(output, axis=1,
+                                  keepdims=True)  # Normalize log-probs.
 
     num_sequences = inputs.shape[1]
     hiddens = np.repeat(params["init hiddens"], num_sequences, axis=0)
@@ -91,9 +98,15 @@ if __name__ == "__main__":
 
     # Learn to predict our own source code.
     text_filename = join(dirname(__file__), "rnn.py")
-    train_inputs = build_dataset(text_filename, sequence_length=30, alphabet_size=num_chars, max_lines=60)
+    train_inputs = build_dataset(text_filename,
+                                 sequence_length=30,
+                                 alphabet_size=num_chars,
+                                 max_lines=60)
 
-    init_params = create_rnn_params(input_size=128, output_size=128, state_size=40, param_scale=0.01)
+    init_params = create_rnn_params(input_size=128,
+                                    output_size=128,
+                                    state_size=40,
+                                    param_scale=0.01)
 
     def print_training_prediction(weights):
         print("Training text                         Predicted text")
@@ -101,7 +114,9 @@ if __name__ == "__main__":
         for t in range(logprobs.shape[1]):
             training_text = one_hot_to_string(train_inputs[:, t, :])
             predicted_text = one_hot_to_string(logprobs[:, t, :])
-            print(training_text.replace("\n", " ") + "|" + predicted_text.replace("\n", " "))
+            print(
+                training_text.replace("\n", " ") + "|" +
+                predicted_text.replace("\n", " "))
 
     def training_loss(params, iter):
         return -rnn_log_likelihood(params, train_inputs, train_inputs)
@@ -115,7 +130,11 @@ if __name__ == "__main__":
     training_loss_grad = grad(training_loss)
 
     print("Training RNN...")
-    trained_params = adam(training_loss_grad, init_params, step_size=0.1, num_iters=1000, callback=callback)
+    trained_params = adam(training_loss_grad,
+                          init_params,
+                          step_size=0.1,
+                          num_iters=1000,
+                          callback=callback)
 
     print()
     print("Generating text from RNN...")

@@ -1,7 +1,9 @@
 import operator
+from typing import Any
 
 
-def subvals(x, ivs):
+def subvals(x, ivs: list[tuple[int, Any]]):
+    r"""Scatters `ivs` (a list of tuples) into `x`."""
     x_ = list(x)
     for i, v in ivs:
         x_[i] = v
@@ -49,9 +51,15 @@ The quick_grad_check function is deprecated. See the update guide:
 https://github.com/HIPS/autograd/blob/master/docs/updateguide.md"""
 
 
-def quick_grad_check(
-    fun, arg0, extra_args=(), kwargs={}, verbose=True, eps=1e-4, rtol=1e-4, atol=1e-6, rs=None
-):
+def quick_grad_check(fun,
+                     arg0,
+                     extra_args=(),
+                     kwargs={},
+                     verbose=True,
+                     eps=1e-4,
+                     rtol=1e-4,
+                     atol=1e-6,
+                     rs=None):
     warnings.warn(deprecation_msg)
     from autograd.test_util import check_grads
 

@@ -11,6 +11,7 @@ npr.seed(0)
 
 
 def test_getter():
+
     def fun(input_dict):
         A = np.sum(input_dict["item_1"])
         B = np.sum(input_dict["item_2"])
@@ -18,7 +19,11 @@ def test_getter():
         return A + B + C
 
     d_fun = grad(fun)
-    input_dict = {"item_1": npr.randn(5, 6), "item_2": npr.randn(4, 3), "item_X": npr.randn(2, 4)}
+    input_dict = {
+        "item_1": npr.randn(5, 6),
+        "item_2": npr.randn(4, 3),
+        "item_X": npr.randn(2, 4)
+    }
 
     result = d_fun(input_dict)
     assert np.allclose(result["item_1"], np.ones((5, 6)))
@@ -27,6 +32,7 @@ def test_getter():
 
 
 def test_grads():
+
     def fun(input_dict):
         A = np.sum(np.sin(input_dict["item_1"]))
         B = np.sum(np.cos(input_dict["item_2"]))
@@ -39,13 +45,18 @@ def test_grads():
         C = np.sum(np.sin(g["item_2"]))
         return A + B + C
 
-    input_dict = {"item_1": npr.randn(5, 6), "item_2": npr.randn(4, 3), "item_X": npr.randn(2, 4)}
+    input_dict = {
+        "item_1": npr.randn(5, 6),
+        "item_2": npr.randn(4, 3),
+        "item_X": npr.randn(2, 4)
+    }
 
     check_grads(fun)(input_dict)
     check_grads(d_fun)(input_dict)
 
 
 def test_iter():
+
     def fun(input_dict):
         A = 0.0
         B = 0.0
@@ -61,17 +72,23 @@ def test_iter():
         C = np.sum(np.sin(g["item_2"]))
         return A + B + C
 
-    input_dict = {"item_1": npr.randn(5, 6), "item_2": npr.randn(4, 3), "item_X": npr.randn(2, 4)}
+    input_dict = {
+        "item_1": npr.randn(5, 6),
+        "item_2": npr.randn(4, 3),
+        "item_X": npr.randn(2, 4)
+    }
 
     check_grads(fun)(input_dict)
     check_grads(d_fun)(input_dict)
 
 
 def test_items_values_keys():
+
     def fun(input_dict):
         A = 0.0
         B = 0.0
-        for i, (k, v) in enumerate(sorted(input_dict.items(), key=op.itemgetter(0))):
+        for i, (k, v) in enumerate(
+                sorted(input_dict.items(), key=op.itemgetter(0))):
             A = A + np.sum(np.sin(v)) * (i + 1.0)
             B = B + np.sum(np.cos(v))
         for v in input_dict.values():
@@ -87,15 +104,20 @@ def test_items_values_keys():
         C = np.sum(np.sin(g["item_2"]))
         return A + B + C
 
-    input_dict = {"item_1": npr.randn(5, 6), "item_2": npr.randn(4, 3), "item_X": npr.randn(2, 4)}
+    input_dict = {
+        "item_1": npr.randn(5, 6),
+        "item_2": npr.randn(4, 3),
+        "item_X": npr.randn(2, 4)
+    }
 
     check_grads(fun)(input_dict)
     check_grads(d_fun)(input_dict)
 
 
 def test_get():
+
     def fun(d, x):
-        return d.get("item_1", x) ** 2
+        return d.get("item_1", x)**2
 
     check_grads(fun, argnum=(0, 1))({"item_1": 3.0}, 2.0)
     check_grads(fun, argnum=(0, 1))({"item_2": 4.0}, 2.0)
@@ -103,6 +125,7 @@ def test_get():
 
 
 def test_make_dict():
+
     def fun(x):
         return ag_dict([("a", x)], b=x)
 
@@ -120,6 +143,7 @@ def test_make_dict():
 
 
 def test_isinstance():
+
     def fun(x):
         assert ag_isinstance(x, dict)
         assert ag_isinstance(x, ag_dict)

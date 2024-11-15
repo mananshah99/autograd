@@ -200,7 +200,10 @@ def test_logaddexp2():
 
 
 def test_remainder():
-    binary_ufunc_check_no_same_args(np.remainder, lims_A=[-0.9, 0.9], lims_B=[0.7, 1.9], test_complex=False)
+    binary_ufunc_check_no_same_args(np.remainder,
+                                    lims_A=[-0.9, 0.9],
+                                    lims_B=[0.7, 1.9],
+                                    test_complex=False)
 
 
 def test_true_divide():
@@ -208,7 +211,9 @@ def test_true_divide():
 
 
 def test_mod():
-    binary_ufunc_check_no_same_args(np.mod, lims_B=[0.8, 2.1], test_complex=False)
+    binary_ufunc_check_no_same_args(np.mod,
+                                    lims_B=[0.8, 2.1],
+                                    test_complex=False)
 
 
 def test_true_divide_neg():
@@ -216,7 +221,9 @@ def test_true_divide_neg():
 
 
 def test_mod_neg():
-    binary_ufunc_check_no_same_args(np.mod, lims_B=[-0.3, -2.0], test_complex=False)
+    binary_ufunc_check_no_same_args(np.mod,
+                                    lims_B=[-0.3, -2.0],
+                                    test_complex=False)
 
 
 def test_op_mul():
@@ -232,11 +239,15 @@ def test_op_sub():
 
 
 def test_op_mod():
-    binary_ufunc_check_no_same_args(op.mod, lims_B=[0.3, 2.0], test_complex=False)
+    binary_ufunc_check_no_same_args(op.mod,
+                                    lims_B=[0.3, 2.0],
+                                    test_complex=False)
 
 
 def test_op_mod_neg():
-    binary_ufunc_check_no_same_args(op.mod, lims_B=[-0.3, -2.0], test_complex=False)
+    binary_ufunc_check_no_same_args(op.mod,
+                                    lims_B=[-0.3, -2.0],
+                                    test_complex=False)
 
 
 # Misc tests
@@ -246,17 +257,23 @@ C = lambda *shape: npr.randn(*shape) + 1j * npr.randn(*shape)
 
 
 def test_transpose():
-    combo_check(np.transpose, [0])(
-        [R(2, 3, 4)], axes=[None, [0, 1, 2], [0, 2, 1], [2, 0, 1], [2, 1, 0], [1, 0, 2], [1, 2, 0]]
-    )
+    combo_check(np.transpose, [0])([R(2, 3, 4)],
+                                   axes=[
+                                       None, [0, 1, 2], [0, 2, 1], [2, 0, 1],
+                                       [2, 1, 0], [1, 0, 2], [1, 2, 0]
+                                   ])
 
 
 def test_moveaxis():
-    combo_check(np.moveaxis, [0])([R(2, 3, 4)], source=[0, 1, 2], destination=[0, 1, 2])
+    combo_check(np.moveaxis, [0])([R(2, 3, 4)],
+                                  source=[0, 1, 2],
+                                  destination=[0, 1, 2])
 
 
 def test_repeat():
-    combo_check(np.repeat, [0])([R(2, 3, 4), R(3, 1)], repeats=[0, 1, 2], axis=[None, 0, 1])
+    combo_check(np.repeat, [0])([R(2, 3, 4), R(3, 1)],
+                                repeats=[0, 1, 2],
+                                axis=[None, 0, 1])
 
 
 def test_diff():
@@ -273,13 +290,17 @@ def test_gradient():
 def test_tile():
     combo_check(np.tile, [0])([R(2, 1, 3, 1)], reps=[(1, 4, 1, 2)])
     combo_check(np.tile, [0])([R(1, 2)], reps=[(1, 2), (2, 3), (3, 2, 1)])
-    combo_check(np.tile, [0])([R(1)], reps=[(2,), 2])
+    combo_check(np.tile, [0])([R(1)], reps=[(2, ), 2])
 
 
 def test_kron():
     combo_check(np.kron, [0, 1])(
-        [R(5, 5), R(4, 4), R(5), R(5, 1), R(1, 5), R(), C(5, 5)],
-        [R(3, 3), R(2, 2), R(3), R(1, 3), R(3, 1), R(), C(3, 3)],
+        [R(5, 5), R(4, 4),
+         R(5), R(5, 1), R(1, 5),
+         R(), C(5, 5)],
+        [R(3, 3), R(2, 2),
+         R(3), R(1, 3), R(3, 1),
+         R(), C(3, 3)],
     )
 
 
@@ -289,8 +310,9 @@ def test_inner():
 
 def test_dot():
     combo_check(np.dot, [0, 1], order=3)(
-        [1.5, R(3), R(2, 3), R(2, 2, 3), C(3), C(2, 3)], [0.3, R(3), R(3, 4), R(2, 3, 4), C(3)]
-    )
+        [1.5, R(3), R(2, 3), R(2, 2, 3),
+         C(3), C(2, 3)],
+        [0.3, R(3), R(3, 4), R(2, 3, 4), C(3)])
 
 
 def test_outer():
@@ -299,8 +321,9 @@ def test_outer():
 
 def test_matmul():
     combo_check(np.matmul, [0, 1])(
-        [R(3), R(2, 3), R(2, 2, 3), C(3), C(2, 3)], [R(3), R(3, 4), R(2, 3, 4), C(3), C(3, 4)]
-    )
+        [R(3), R(2, 3), R(2, 2, 3), C(3),
+         C(2, 3)], [R(3), R(3, 4), R(2, 3, 4),
+                    C(3), C(3, 4)])
 
 
 def test_matmul_broadcast():
@@ -309,24 +332,29 @@ def test_matmul_broadcast():
 
 def test_tensordot_1():
     combo_check(np.tensordot, [0, 1], order=3)(
-        [R(1, 3), R(2, 3, 2), C(1, 3)], [R(3), R(3, 1), R(3, 4, 2), C(3)], axes=[[(1,), (0,)]]
-    )
+        [R(1, 3), R(2, 3, 2), C(1, 3)],
+        [R(3), R(3, 1), R(3, 4, 2), C(3)],
+        axes=[[(1, ), (0, )]])
 
 
 def test_tensordot_2():
-    combo_check(np.tensordot, [0, 1], order=3)(
-        [R(3), R(3, 1), R(3, 4, 2)], [R(1, 3), R(2, 3, 2)], axes=[[(0,), (1,)]]
-    )
+    combo_check(np.tensordot, [0, 1],
+                order=3)([R(3), R(3, 1), R(3, 4, 2)],
+                         [R(1, 3), R(2, 3, 2)],
+                         axes=[[(0, ), (1, )]])
 
 
 def test_tensordot_3():
-    combo_check(np.tensordot, [0, 1], order=3)(
-        [R(2, 3), R(2, 3, 4)], [R(1, 2, 3), R(2, 2, 3, 4)], axes=[[(0, 1), (1, 2)], [(1, 0), (2, 1)]]
-    )
+    combo_check(np.tensordot, [0, 1],
+                order=3)([R(2, 3), R(2, 3, 4)],
+                         [R(1, 2, 3), R(2, 2, 3, 4)],
+                         axes=[[(0, 1), (1, 2)], [(1, 0), (2, 1)]])
 
 
 def test_tensordot_4():
-    combo_check(np.tensordot, [0, 1], order=3)([R(2, 2), R(4, 2, 2)], [R(2, 2), R(2, 2, 4)], axes=[1, 2])
+    combo_check(np.tensordot, [0, 1], order=3)([R(2, 2), R(4, 2, 2)],
+                                               [R(2, 2), R(2, 2, 4)],
+                                               axes=[1, 2])
 
 
 def test_tensordot_5():
@@ -334,32 +362,39 @@ def test_tensordot_5():
 
 
 def test_tensordot_6():
-    combo_check(np.tensordot, [0, 1], order=3)([R(2, 6)], [R(6, 3)], axes=[[[-1], [0]]])
+    combo_check(np.tensordot, [0, 1], order=3)([R(2, 6)], [R(6, 3)],
+                                               axes=[[[-1], [0]]])
 
 
 def test_tensordot_7():
-    combo_check(np.tensordot, [0, 1], order=3)([R(2, 6)], [R(6, 3)], axes=[[-1, 0]])
+    combo_check(np.tensordot, [0, 1], order=3)([R(2, 6)], [R(6, 3)],
+                                               axes=[[-1, 0]])
 
 
 def test_tensordot_8():
-    combo_check(np.tensordot, [0, 1], order=3)([R(2)], [R(2, 2)], axes=[[0, 1]])
+    combo_check(np.tensordot, [0, 1], order=3)([R(2)], [R(2, 2)],
+                                               axes=[[0, 1]])
 
 
 # Need custom tests because gradient is undefined when arguments are identical.
 def test_maximum():
-    combo_check(np.maximum, [0, 1])([R(1), R(1, 4), R(3, 4)], [R(1), R(1, 4), R(3, 4)])
+    combo_check(np.maximum, [0, 1])([R(1), R(1, 4), R(3, 4)],
+                                    [R(1), R(1, 4), R(3, 4)])
 
 
 def test_fmax():
-    combo_check(np.fmax, [0, 1])([R(1), R(1, 4), R(3, 4)], [R(1), R(1, 4), R(3, 4)])
+    combo_check(np.fmax, [0, 1])([R(1), R(1, 4), R(3, 4)],
+                                 [R(1), R(1, 4), R(3, 4)])
 
 
 def test_minimum():
-    combo_check(np.minimum, [0, 1])([R(1), R(1, 4), R(3, 4)], [R(1), R(1, 4), R(3, 4)])
+    combo_check(np.minimum, [0, 1])([R(1), R(1, 4), R(3, 4)],
+                                    [R(1), R(1, 4), R(3, 4)])
 
 
 def test_fmin():
-    combo_check(np.fmin, [0, 1])([R(1), R(1, 4), R(3, 4)], [R(1), R(1, 4), R(3, 4)])
+    combo_check(np.fmin, [0, 1])([R(1), R(1, 4), R(3, 4)],
+                                 [R(1), R(1, 4), R(3, 4)])
 
 
 def test_sort():
@@ -377,15 +412,25 @@ def test_partition():
 
 
 def test_atleast_1d():
-    combo_check(np.atleast_1d, [0])([1.2, R(1), R(7), R(1, 4), R(2, 4), R(2, 4, 5)])
+    combo_check(np.atleast_1d,
+                [0])([1.2, R(1), R(7),
+                      R(1, 4), R(2, 4),
+                      R(2, 4, 5)])
 
 
 def test_atleast_2d():
-    combo_check(np.atleast_2d, [0])([1.2, R(1), R(7), R(1, 4), R(2, 4), R(2, 4, 5)])
+    combo_check(np.atleast_2d,
+                [0])([1.2, R(1), R(7),
+                      R(1, 4), R(2, 4),
+                      R(2, 4, 5)])
 
 
 def test_atleast_3d():
-    combo_check(np.atleast_3d, [0])([1.2, R(1), R(7), R(1, 4), R(2, 4), R(2, 4, 5), R(2, 4, 3, 5)])
+    combo_check(np.atleast_3d, [0])(
+        [1.2, R(1),
+         R(7), R(1, 4),
+         R(2, 4), R(2, 4, 5),
+         R(2, 4, 3, 5)])
 
 
 def test_einsum_transpose():
@@ -393,45 +438,57 @@ def test_einsum_transpose():
 
 
 def test_einsum_matmult():
-    combo_check(np.einsum, [1, 2])(["ij,jk->ik"], [R(2, 3), C(2, 3)], [R(3, 4), C(3, 4)])
+    combo_check(np.einsum, [1, 2])(["ij,jk->ik"], [R(2, 3), C(2, 3)],
+                                   [R(3, 4), C(3, 4)])
 
 
 def test_einsum_matmult_broadcast():
-    combo_check(np.einsum, [1, 2])(["...ij,...jk->...ik"], [R(2, 3), R(2, 2, 3)], [R(3, 4), R(2, 3, 4)])
+    combo_check(np.einsum,
+                [1, 2])(["...ij,...jk->...ik"], [R(2, 3), R(2, 2, 3)],
+                        [R(3, 4), R(2, 3, 4)])
 
 
 def test_einsum_matmult_broadcast_leadzero():
-    combo_check(np.einsum, [1, 2])(["...ij,...jk->...ik"], [R(0, 2, 3)], [R(0, 3, 4)])
+    combo_check(np.einsum, [1, 2])(["...ij,...jk->...ik"], [R(0, 2, 3)],
+                                   [R(0, 3, 4)])
 
 
 def test_einsum_covsum():
-    combo_check(np.einsum, [1, 2])(["ijk,lji->lki"], [R(3, 4, 4)], [R(4, 4, 3)])
+    combo_check(np.einsum, [1, 2])(["ijk,lji->lki"], [R(3, 4, 4)],
+                                   [R(4, 4, 3)])
 
 
 def test_einsum_ellipses():
-    combo_check(np.einsum, [1, 2])(
-        ["...jk,...lj->...lk", "...,...->..."], [R(4, 4), R(3, 4, 4)], [R(4, 4), R(3, 4, 4)]
-    )
+    combo_check(np.einsum,
+                [1, 2])(["...jk,...lj->...lk", "...,...->..."],
+                        [R(4, 4), R(3, 4, 4)], [R(4, 4), R(3, 4, 4)])
 
 
 def test_einsum_ellipses_tail():
-    combo_check(np.einsum, [1, 2])(["jk...,lj...->lk..."], [R(3, 2), R(3, 2, 4)], [R(2, 3), R(2, 3, 4)])
+    combo_check(np.einsum,
+                [1, 2])(["jk...,lj...->lk..."], [R(3, 2), R(3, 2, 4)],
+                        [R(2, 3), R(2, 3, 4)])
 
 
 def test_einsum_ellipses_center():
-    combo_check(np.einsum, [1, 2])(["j...k,lj...->lk..."], [R(2, 2), R(2, 2, 2)], [R(2, 2), R(2, 2, 2)])
+    combo_check(np.einsum,
+                [1, 2])(["j...k,lj...->lk..."], [R(2, 2), R(2, 2, 2)],
+                        [R(2, 2), R(2, 2, 2)])
 
 
 def test_einsum_three_args():
-    combo_check(np.einsum, [1, 2])(["ijk,lji,lli->lki"], [R(3, 4, 4)], [R(4, 4, 3)], [R(4, 4, 3)])
+    combo_check(np.einsum, [1, 2])(["ijk,lji,lli->lki"], [R(3, 4, 4)],
+                                   [R(4, 4, 3)], [R(4, 4, 3)])
 
 
 def test_einsum2_transpose():
-    combo_check(np.einsum, [0])([R(1, 1), R(4, 4), R(3, 4)], [(0, 1)], [(1, 0)])
+    combo_check(np.einsum, [0])([R(1, 1), R(4, 4), R(3, 4)], [(0, 1)],
+                                [(1, 0)])
 
 
 def test_einsum2_matmult():
-    combo_check(np.einsum, [0, 2])([R(2, 3)], [(0, 1)], [R(3, 4)], [(1, 2)], [(0, 2)])
+    combo_check(np.einsum, [0, 2])([R(2, 3)], [(0, 1)], [R(3, 4)], [(1, 2)],
+                                   [(0, 2)])
 
 
 def test_einsum2_matmult_broadcast():
@@ -445,13 +502,14 @@ def test_einsum2_matmult_broadcast():
 
 
 def test_einsum2_covsum():
-    combo_check(np.einsum, [0, 2])([R(3, 4, 4)], [(0, 1, 2)], [R(4, 4, 3)], [(3, 1, 0)], [(3, 2, 0)])
+    combo_check(np.einsum, [0, 2])([R(3, 4, 4)], [(0, 1, 2)], [R(4, 4, 3)],
+                                   [(3, 1, 0)], [(3, 2, 0)])
 
 
 def test_einsum2_three_args():
-    combo_check(np.einsum, [0, 2])(
-        [R(3, 4, 4)], [(0, 1, 2)], [R(4, 4, 3)], [(3, 1, 0)], [R(4, 4, 3)], [(3, 3, 0)], [(3, 2, 0)]
-    )
+    combo_check(np.einsum,
+                [0, 2])([R(3, 4, 4)], [(0, 1, 2)], [R(4, 4, 3)], [(3, 1, 0)],
+                        [R(4, 4, 3)], [(3, 3, 0)], [(3, 2, 0)])
 
 
 def test_einsum_naked_sum():
@@ -463,7 +521,8 @@ def test_einsum_naked_sum2():
 
 
 def test_einsum_naked_sum_ellipsis():
-    combo_check(np.einsum, [1, 2])(["...k,...nk->..."], [R(3, 5)], [R(3, 10, 5)])
+    combo_check(np.einsum, [1, 2])(["...k,...nk->..."], [R(3, 5)],
+                                   [R(3, 10, 5)])
 
 
 def test_einsum_no_output_indices():
@@ -471,7 +530,8 @@ def test_einsum_no_output_indices():
 
 
 def test_trace():
-    combo_check(np.trace, [0])([R(5, 5), R(4, 5), R(5, 4), R(3, 4, 5)], offset=[-1, 0, 1])
+    combo_check(np.trace, [0])(
+        [R(5, 5), R(4, 5), R(5, 4), R(3, 4, 5)], offset=[-1, 0, 1])
 
 
 def test_diag():
@@ -499,17 +559,23 @@ def test_triu_3d():
 
 
 def test_swapaxes():
-    combo_check(np.swapaxes, [0])([R(3, 4, 5)], axis1=[0, 1, 2], axis2=[0, 1, 2])
+    combo_check(np.swapaxes, [0])([R(3, 4, 5)],
+                                  axis1=[0, 1, 2],
+                                  axis2=[0, 1, 2])
 
 
 def test_rollaxis():
-    combo_check(np.rollaxis, [0])([R(2, 3, 4)], axis=[0, 1, 2], start=[0, 1, 2])
+    combo_check(np.rollaxis, [0])([R(2, 3, 4)],
+                                  axis=[0, 1, 2],
+                                  start=[0, 1, 2])
 
 
 def test_cross():
-    combo_check(np.cross, [0, 1])(
-        [R(3, 3)], [R(3, 3)], axisa=[-1, 0, 1], axisb=[-1, 0, 1], axisc=[-1, 0, 1], axis=[None, -1, 0, 1]
-    )
+    combo_check(np.cross, [0, 1])([R(3, 3)], [R(3, 3)],
+                                  axisa=[-1, 0, 1],
+                                  axisb=[-1, 0, 1],
+                                  axisc=[-1, 0, 1],
+                                  axis=[None, -1, 0, 1])
 
 
 def test_vsplit_2d():
@@ -569,7 +635,8 @@ def test_concatenate_2d():
 
 
 def test_concatenate_3d():
-    combo_check(np.concatenate, [0])([(R(2, 2, 2), R(2, 2, 2))], axis=[0, 1, 2])
+    combo_check(np.concatenate, [0])([(R(2, 2, 2), R(2, 2, 2))],
+                                     axis=[0, 1, 2])
 
 
 def test_vstack_1d():
@@ -597,7 +664,7 @@ def test_hstack_3d():
 
 
 def test_stack_1d():
-    combo_check(np.stack, [0])([(R(2),), (R(2), R(2))], axis=[0, 1])
+    combo_check(np.stack, [0])([(R(2), ), (R(2), R(2))], axis=[0, 1])
 
 
 def test_row_stack_1d():
@@ -618,7 +685,8 @@ def test_column_stack_2d():
 
 def test_select():
     combo_check(np.select, [1])(
-        [[R(3, 4, 5) > 0, R(3, 4, 5) > 0, R(3, 4, 5) > 0]],
+        [[R(3, 4, 5) > 0, R(3, 4, 5) > 0,
+          R(3, 4, 5) > 0]],
         [[R(3, 4, 5), R(3, 4, 5), R(3, 4, 5)]],
         default=[0.0, 1.1],
     )
@@ -626,5 +694,6 @@ def test_select():
 
 def test_pad():
     combo_check(np.pad, [0])(
-        [R(2, 2)], [0, 3, (3,), (3, 2), ((3, 2),), ((1, 2), (3, 4)), ((0, 0), (0, 0))], ["constant"]
-    )
+        [R(2, 2)],
+        [0, 3, (3, ), (3, 2), ((3, 2), ), ((1, 2), (3, 4)),
+         ((0, 0), (0, 0))], ["constant"])

@@ -25,7 +25,7 @@ def time_short_fun():
 
 def time_short_forward_pass():
     if MASTER_BRANCH:
-        forward_pass(f_short, (2.0,), {})
+        forward_pass(f_short, (2.0, ), {})
     else:
         start_node = VJPNode.new_root()
         trace(start_node, f_short, x)
@@ -55,7 +55,7 @@ def time_long_fun():
 
 def time_long_forward_pass():
     if MASTER_BRANCH:
-        forward_pass(f_long, (2.0,), {})
+        forward_pass(f_long, (2.0, ), {})
     else:
         start_node = VJPNode.new_root()
         trace(start_node, f_long, x)
@@ -85,7 +85,7 @@ def time_fan_out_fan_in_fun():
 
 def time_fan_out_fan_in_forward_pass():
     if MASTER_BRANCH:
-        forward_pass(fan_out_fan_in, (2.0,), {})
+        forward_pass(fan_out_fan_in, (2.0, ), {})
     else:
         start_node = VJPNode.new_root()
         trace(start_node, fan_out_fan_in, x)
@@ -144,9 +144,9 @@ def time_no_autograd_control():
 
 
 if MASTER_BRANCH:
-    short_start_node, short_end_node = forward_pass(f_short, (2.0,), {})
-    long_start_node, long_end_node = forward_pass(f_long, (2.0,), {})
-    fan_start_node, fan_end_node = forward_pass(fan_out_fan_in, (2.0,), {})
+    short_start_node, short_end_node = forward_pass(f_short, (2.0, ), {})
+    long_start_node, long_end_node = forward_pass(f_long, (2.0, ), {})
+    fan_start_node, fan_end_node = forward_pass(fan_out_fan_in, (2.0, ), {})
     progenitor = new_progenitor(2.0)
 else:
     x = 2.0

@@ -21,19 +21,13 @@ def project(vx, vy, occlusion):
     """Project the velocity field to be approximately mass-conserving,
     using a few iterations of Gauss-Seidel."""
     p = np.zeros(vx.shape)
-    div = -0.5 * (
-        np.roll(vx, -1, axis=1) - np.roll(vx, 1, axis=1) + np.roll(vy, -1, axis=0) - np.roll(vy, 1, axis=0)
-    )
+    div = -0.5 * (np.roll(vx, -1, axis=1) - np.roll(vx, 1, axis=1) +
+                  np.roll(vy, -1, axis=0) - np.roll(vy, 1, axis=0))
     div = make_continuous(div, occlusion)
 
     for k in range(50):
-        p = (
-            div
-            + np.roll(p, 1, axis=1)
-            + np.roll(p, -1, axis=1)
-            + np.roll(p, 1, axis=0)
-            + np.roll(p, -1, axis=0)
-        ) / 4.0
+        p = (div + np.roll(p, 1, axis=1) + np.roll(p, -1, axis=1) +
+             np.roll(p, 1, axis=0) + np.roll(p, -1, axis=0)) / 4.0
         p = make_continuous(p, occlusion)
 
     vx = vx - 0.5 * (np.roll(p, -1, axis=1) - np.roll(p, 1, axis=1))
@@ -63,26 +57,22 @@ def advect(f, vx, vy):
     bot_ix = np.mod(top_ix + 1, cols)
 
     # A linearly-weighted sum of the 4 surrounding cells.
-    flat_f = (1 - rw) * ((1 - bw) * f[left_ix, top_ix] + bw * f[left_ix, bot_ix]) + rw * (
-        (1 - bw) * f[right_ix, top_ix] + bw * f[right_ix, bot_ix]
-    )
+    flat_f = (1 - rw) * (
+        (1 - bw) * f[left_ix, top_ix] + bw * f[left_ix, bot_ix]) + rw * (
+            (1 - bw) * f[right_ix, top_ix] + bw * f[right_ix, bot_ix])
     return np.reshape(flat_f, (rows, cols))
 
 
 def make_continuous(f, occlusion):
     non_occluded = 1 - occlusion
-    num = (
-        np.roll(f, 1, axis=0) * np.roll(non_occluded, 1, axis=0)
-        + np.roll(f, -1, axis=0) * np.roll(non_occluded, -1, axis=0)
-        + np.roll(f, 1, axis=1) * np.roll(non_occluded, 1, axis=1)
-        + np.roll(f, -1, axis=1) * np.roll(non_occluded, -1, axis=1)
-    )
-    den = (
-        np.roll(non_occluded, 1, axis=0)
-        + np.roll(non_occluded, -1, axis=0)
-        + np.roll(non_occluded, 1, axis=1)
-        + np.roll(non_occluded, -1, axis=1)
-    )
+    num = (np.roll(f, 1, axis=0) * np.roll(non_occluded, 1, axis=0) +
+           np.roll(f, -1, axis=0) * np.roll(non_occluded, -1, axis=0) +
+           np.roll(f, 1, axis=1) * np.roll(non_occluded, 1, axis=1) +
+           np.roll(f, -1, axis=1) * np.roll(non_occluded, -1, axis=1))
+    den = (np.roll(non_occluded, 1, axis=0) +
+           np.roll(non_occluded, -1, axis=0) +
+           np.roll(non_occluded, 1, axis=1) +
+           np.roll(non_occluded, -1, axis=1))
     return f * non_occluded + (1 - non_occluded) * num / (den + 0.001)
 
 
@@ -100,9 +90,9 @@ def simulate(vx, vy, num_time_steps, occlusion, ax=None, render=False):
 
     # Initialize smoke bands.
     red_smoke = np.zeros((rows, cols))
-    red_smoke[rows // 4 : rows // 2] = 1
+    red_smoke[rows // 4:rows // 2] = 1
     blue_smoke = np.zeros((rows, cols))
-    blue_smoke[rows // 2 : 3 * rows // 4] = 1
+    blue_smoke[rows // 2:3 * rows // 4] = 1
 
     print("Running simulation...")
     vx, vy = project(vx, vy, occlusion)
@@ -122,7 +112,10 @@ def simulate(vx, vy, num_time_steps, occlusion, ax=None, render=False):
 def plot_matrix(ax, r, g, b, t, render=False):
     if ax:
         plt.cla()
-        ax.imshow(np.concatenate((r[..., np.newaxis], g[..., np.newaxis], b[..., np.newaxis]), axis=2))
+        ax.imshow(
+            np.concatenate(
+                (r[..., np.newaxis], g[..., np.newaxis], b[..., np.newaxis]),
+                axis=2))
         ax.set_xticks([])
         ax.set_yticks([])
         plt.draw()
@@ -151,7 +144,8 @@ if __name__ == "__main__":
 
     def objective(params):
         cur_occlusion = np.reshape(params, (rows, cols))
-        final_vx, final_vy = simulate(init_vx, init_vy, simulation_timesteps, cur_occlusion)
+        final_vx, final_vy = simulate(init_vx, init_vy, simulation_timesteps,
+                                      cur_occlusion)
         return -lift(final_vy) / drag(final_vx)
 
     # Specify gradient of objective function using autograd.
@@ -173,18 +167,24 @@ if __name__ == "__main__":
         init_occlusion,
         jac=True,
         method="CG",
-        options={"maxiter": 50, "disp": True},
+        options={
+            "maxiter": 50,
+            "disp": True
+        },
         callback=callback,
     )
 
     print("Rendering optimized flow...")
     final_occlusion = np.reshape(result.x, (rows, cols))
-    simulate(init_vx, init_vy, simulation_timesteps, final_occlusion, ax, render=True)
+    simulate(init_vx,
+             init_vy,
+             simulation_timesteps,
+             final_occlusion,
+             ax,
+             render=True)
 
     print("Converting frames to an animated GIF...")  # Using imagemagick.
     os.system(
-        "convert -delay 5 -loop 0 step*.png " "-delay 250 step{:03d}.png wing.gif".format(
-            simulation_timesteps
-        )
-    )
+        "convert -delay 5 -loop 0 step*.png "
+        "-delay 250 step{:03d}.png wing.gif".format(simulation_timesteps))
     os.system("rm step*.png")

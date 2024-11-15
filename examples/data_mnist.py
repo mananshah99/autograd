@@ -26,13 +26,14 @@ def mnist():
     def parse_images(filename):
         with gzip.open(filename, "rb") as fh:
             magic, num_data, rows, cols = struct.unpack(">IIII", fh.read(16))
-            return np.array(array.array("B", fh.read()), dtype=np.uint8).reshape(num_data, rows, cols)
+            return np.array(array.array("B", fh.read()),
+                            dtype=np.uint8).reshape(num_data, rows, cols)
 
     for filename in [
-        "train-images-idx3-ubyte.gz",
-        "train-labels-idx1-ubyte.gz",
-        "t10k-images-idx3-ubyte.gz",
-        "t10k-labels-idx1-ubyte.gz",
+            "train-images-idx3-ubyte.gz",
+            "train-labels-idx1-ubyte.gz",
+            "t10k-images-idx3-ubyte.gz",
+            "t10k-labels-idx1-ubyte.gz",
     ]:
         download(base_url + filename, filename)
 

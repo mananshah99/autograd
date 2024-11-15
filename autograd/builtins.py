@@ -99,7 +99,10 @@ DictBox.register(dict_)
 @primitive
 def container_untake(x, idx, vs):
     if isinstance(idx, slice):
-        accum = lambda result: [elt_vs._mut_add(a, b) for elt_vs, a, b in zip(vs.shape[idx], result, x)]
+        accum = lambda result: [
+            elt_vs._mut_add(a, b)
+            for elt_vs, a, b in zip(vs.shape[idx], result, x)
+        ]
     else:
         accum = lambda result: vs.shape[idx]._mut_add(result, x)
 
@@ -109,7 +112,8 @@ def container_untake(x, idx, vs):
     return SparseObject(vs, mut_add)
 
 
-defvjp(container_untake, lambda ans, x, idx, _: lambda g: container_take(g, idx))
+defvjp(container_untake,
+       lambda ans, x, idx, _: lambda g: container_take(g, idx))
 defjvp(container_untake, "same")
 
 
@@ -120,7 +124,7 @@ def sequence_extend_right(seq, *elts):
 
 def grad_sequence_extend_right(argnum, ans, args, kwargs):
     seq, elts = args[0], args[1:]
-    return lambda g: g[: len(seq)] if argnum == 0 else g[len(seq) + argnum - 1]
+    return lambda g: g[:len(seq)] if argnum == 0 else g[len(seq) + argnum - 1]
 
 
 defvjp_argnum(sequence_extend_right, grad_sequence_extend_right)
@@ -133,7 +137,7 @@ def sequence_extend_left(seq, *elts):
 
 def grad_sequence_extend_left(argnum, ans, args, kwargs):
     seq, elts = args[0], args[1:]
-    return lambda g: g[len(elts) :] if argnum == 0 else g[argnum - 1]
+    return lambda g: g[len(elts):] if argnum == 0 else g[argnum - 1]
 
 
 defvjp_argnum(sequence_extend_left, grad_sequence_extend_left)
@@ -155,31 +159,37 @@ defjvp_argnum(make_sequence, fwd_grad_make_sequence)
 
 
 class TupleMeta(type(tuple_)):
+
     def __instancecheck__(self, instance):
         return isinstance(instance, tuple_)
 
 
 class tuple(tuple_, metaclass=TupleMeta):
+
     def __new__(cls, xs):
         return make_sequence(tuple_, *xs)
 
 
 class ListMeta(type_):
+
     def __instancecheck__(self, instance):
         return isinstance(instance, list_)
 
 
 class list(list_, metaclass=ListMeta):
+
     def __new__(cls, xs):
         return make_sequence(list_, *xs)
 
 
 class DictMeta(type_):
+
     def __instancecheck__(self, instance):
         return isinstance(instance, dict_)
 
 
 class dict(dict_, metaclass=DictMeta):
+
     def __new__(cls, *args, **kwargs):
         result = dict_(*args, **kwargs)
         if result:
@@ -192,10 +202,13 @@ def _make_dict(keys, vals):
     return dict_(zip(keys, vals))
 
 
-defvjp(_make_dict, lambda ans, keys, vals: lambda g: list(g[key] for key in keys), argnums=(1,))
+defvjp(_make_dict,
+       lambda ans, keys, vals: lambda g: list(g[key] for key in keys),
+       argnums=(1, ))
 
 
 class ContainerVSpace(VSpace):
+
     def __init__(self, value):
         self.shape = value
         self.shape = self._map(vspace)
@@ -229,13 +242,16 @@ class ContainerVSpace(VSpace):
         return self._map(lambda vs, x: vs._scalar_mul(x, a), xs)
 
     def _inner_prod(self, xs, ys):
-        return sum(self._values(self._map(lambda vs, x, y: vs._inner_prod(x, y), xs, ys)))
+        return sum(
+            self._values(
+                self._map(lambda vs, x, y: vs._inner_prod(x, y), xs, ys)))
 
     def _covector(self, xs):
         return self._map(lambda vs, x: vs._covector(x), xs)
 
 
 class SequenceVSpace(ContainerVSpace):
+
     def _values(self, x):
         return x
 
@@ -258,6 +274,7 @@ class TupleVSpace(SequenceVSpace):
 
 
 class DictVSpace(ContainerVSpace):
+
     def _values(self, x):
         return x.values()
 
@@ -265,7 +282,10 @@ class DictVSpace(ContainerVSpace):
         return x.items()
 
     def _map(self, f, *args):
-        return {k: f(vs, *[x[k] for x in args]) for k, vs in self.shape.items()}
+        return {
+            k: f(vs, *[x[k] for x in args])
+            for k, vs in self.shape.items()
+        }
 
     def _subval(self, xs, idx, x):
         d = dict(xs.items())
@@ -279,6 +299,7 @@ DictVSpace.register(dict_)
 
 
 class NamedTupleVSpace(SequenceVSpace):
+
     def _map(self, f, *args):
         return self.seq_type(*map(f, self.shape, *args))
 

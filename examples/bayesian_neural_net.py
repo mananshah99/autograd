@@ -16,10 +16,10 @@ def make_nn_funs(layer_sizes, L2_reg, noise_variance, nonlinearity=np.tanh):
         num_weight_sets = len(weights)
         for m, n in shapes:
             yield (
-                weights[:, : m * n].reshape((num_weight_sets, m, n)),
-                weights[:, m * n : m * n + n].reshape((num_weight_sets, 1, n)),
+                weights[:, :m * n].reshape((num_weight_sets, m, n)),
+                weights[:, m * n:m * n + n].reshape((num_weight_sets, 1, n)),
             )
-            weights = weights[:, (m + 1) * n :]
+            weights = weights[:, (m + 1) * n:]
 
     def predictions(weights, inputs):
         """weights is shape (num_weight_samples x num_weights)
@@ -33,7 +33,7 @@ def make_nn_funs(layer_sizes, L2_reg, noise_variance, nonlinearity=np.tanh):
     def logprob(weights, inputs, targets):
         log_prior = -L2_reg * np.sum(weights**2, axis=1)
         preds = predictions(weights, inputs)
-        log_lik = -np.sum((preds - targets) ** 2, axis=1)[:, 0] / noise_variance
+        log_lik = -np.sum((preds - targets)**2, axis=1)[:, 0] / noise_variance
         return log_prior + log_lik
 
     return num_weights, predictions, logprob
@@ -42,7 +42,9 @@ def make_nn_funs(layer_sizes, L2_reg, noise_variance, nonlinearity=np.tanh):
 def build_toy_dataset(n_data=40, noise_std=0.1):
     D = 1
     rs = npr.RandomState(0)
-    inputs = np.concatenate([np.linspace(0, 2, num=n_data / 2), np.linspace(6, 8, num=n_data / 2)])
+    inputs = np.concatenate(
+        [np.linspace(0, 2, num=n_data / 2),
+         np.linspace(6, 8, num=n_data / 2)])
     targets = np.cos(inputs) + rs.randn(n_data) * noise_std
     inputs = (inputs - 4.0) / 4.0
     inputs = inputs.reshape((len(inputs), D))
@@ -55,16 +57,17 @@ if __name__ == "__main__":
     rbf = lambda x: np.exp(-(x**2))
     relu = lambda x: np.maximum(x, 0.0)
     num_weights, predictions, logprob = make_nn_funs(
-        layer_sizes=[1, 20, 20, 1], L2_reg=0.1, noise_variance=0.01, nonlinearity=rbf
-    )
+        layer_sizes=[1, 20, 20, 1],
+        L2_reg=0.1,
+        noise_variance=0.01,
+        nonlinearity=rbf)
 
     inputs, targets = build_toy_dataset()
     log_posterior = lambda weights, t: logprob(weights, inputs, targets)
 
     # Build variational objective.
     objective, gradient, unpack_params = black_box_variational_inference(
-        log_posterior, num_weights, num_samples=20
-    )
+        log_posterior, num_weights, num_samples=20)
 
     # Set up figure.
     fig = plt.figure(figsize=(12, 8), facecolor="white")
@@ -98,4 +101,8 @@ if __name__ == "__main__":
     init_var_params = np.concatenate([init_mean, init_log_std])
 
     print("Optimizing variational parameters...")
-    variational_params = adam(gradient, init_var_params, step_size=0.1, num_iters=1000, callback=callback)
+    variational_params = adam(gradient,
+                              init_var_params,
+                              step_size=0.1,
+                              num_iters=1000,
+                              callback=callback)

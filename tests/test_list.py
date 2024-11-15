@@ -9,6 +9,7 @@ npr.seed(1)
 
 
 def test_getter():
+
     def fun(input_list):
         A = np.sum(input_list[0])
         B = np.sum(input_list[1])
@@ -25,6 +26,7 @@ def test_getter():
 
 
 def test_grads():
+
     def fun(input_list):
         A = np.sum(np.sin(input_list[0]))
         B = np.sum(np.cos(input_list[1]))
@@ -44,6 +46,7 @@ def test_grads():
 
 
 def test_slices():
+
     def f(x):
         s = slice(None, -1, None)
         y = x[s]
@@ -68,6 +71,7 @@ def test_nested_list():
 
 
 def test_make_list():
+
     def fun(x):
         return ag_list((x, x))
 
@@ -75,6 +79,7 @@ def test_make_list():
 
 
 def test_isinstance():
+
     def fun(x):
         assert ag_isinstance(x, list)
         assert ag_isinstance(x, ag_list)

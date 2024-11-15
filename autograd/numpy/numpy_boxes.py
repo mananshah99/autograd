@@ -112,15 +112,15 @@ class ArrayBox(Box):
 
 ArrayBox.register(np.ndarray)
 for type_ in [
-    float,
-    np.longdouble,
-    np.float64,
-    np.float32,
-    np.float16,
-    complex,
-    np.clongdouble,
-    np.complex64,
-    np.complex128,
+        float,
+        np.longdouble,
+        np.float64,
+        np.float32,
+        np.float16,
+        complex,
+        np.clongdouble,
+        np.complex64,
+        np.complex128,
 ]:
     ArrayBox.register(type_)
 

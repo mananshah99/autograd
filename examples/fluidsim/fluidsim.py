@@ -18,25 +18,12 @@ def project(vx, vy):
     using a few iterations of Gauss-Seidel."""
     p = np.zeros(vx.shape)
     h = 1.0 / vx.shape[0]
-    div = (
-        -0.5
-        * h
-        * (
-            np.roll(vx, -1, axis=0)
-            - np.roll(vx, 1, axis=0)
-            + np.roll(vy, -1, axis=1)
-            - np.roll(vy, 1, axis=1)
-        )
-    )
+    div = (-0.5 * h * (np.roll(vx, -1, axis=0) - np.roll(vx, 1, axis=0) +
+                       np.roll(vy, -1, axis=1) - np.roll(vy, 1, axis=1)))
 
     for k in range(10):
-        p = (
-            div
-            + np.roll(p, 1, axis=0)
-            + np.roll(p, -1, axis=0)
-            + np.roll(p, 1, axis=1)
-            + np.roll(p, -1, axis=1)
-        ) / 4.0
+        p = (div + np.roll(p, 1, axis=0) + np.roll(p, -1, axis=0) +
+             np.roll(p, 1, axis=1) + np.roll(p, -1, axis=1)) / 4.0
 
     vx -= 0.5 * (np.roll(p, -1, axis=0) - np.roll(p, 1, axis=0)) / h
     vy -= 0.5 * (np.roll(p, -1, axis=1) - np.roll(p, 1, axis=1)) / h
@@ -62,9 +49,9 @@ def advect(f, vx, vy):
     bot_ix = np.mod(top_ix + 1, cols)
 
     # A linearly-weighted sum of the 4 surrounding cells.
-    flat_f = (1 - rw) * ((1 - bw) * f[left_ix, top_ix] + bw * f[left_ix, bot_ix]) + rw * (
-        (1 - bw) * f[right_ix, top_ix] + bw * f[right_ix, bot_ix]
-    )
+    flat_f = (1 - rw) * (
+        (1 - bw) * f[left_ix, top_ix] + bw * f[left_ix, bot_ix]) + rw * (
+            (1 - bw) * f[right_ix, top_ix] + bw * f[right_ix, bot_ix])
     return np.reshape(flat_f, (rows, cols))
 
 
@@ -106,16 +93,17 @@ if __name__ == "__main__":
     init_dx_and_dy = np.zeros((2, rows, cols)).ravel()
 
     def distance_from_target_image(smoke):
-        return np.mean((target - smoke) ** 2)
+        return np.mean((target - smoke)**2)
 
     def convert_param_vector_to_matrices(params):
-        vx = np.reshape(params[: (rows * cols)], (rows, cols))
-        vy = np.reshape(params[(rows * cols) :], (rows, cols))
+        vx = np.reshape(params[:(rows * cols)], (rows, cols))
+        vy = np.reshape(params[(rows * cols):], (rows, cols))
         return vx, vy
 
     def objective(params):
         init_vx, init_vy = convert_param_vector_to_matrices(params)
-        final_smoke = simulate(init_vx, init_vy, init_smoke, simulation_timesteps)
+        final_smoke = simulate(init_vx, init_vy, init_smoke,
+                               simulation_timesteps)
         return distance_from_target_image(final_smoke)
 
     # Specify gradient of objective function using autograd.
@@ -134,16 +122,23 @@ if __name__ == "__main__":
         init_dx_and_dy,
         jac=True,
         method="CG",
-        options={"maxiter": 25, "disp": True},
+        options={
+            "maxiter": 25,
+            "disp": True
+        },
         callback=callback,
     )
 
     print("Rendering optimized flow...")
     init_vx, init_vy = convert_param_vector_to_matrices(result.x)
-    simulate(init_vx, init_vy, init_smoke, simulation_timesteps, ax, render=True)
+    simulate(init_vx,
+             init_vy,
+             init_smoke,
+             simulation_timesteps,
+             ax,
+             render=True)
 
     print("Converting frames to an animated GIF...")
-    os.system(
-        "convert -delay 5 -loop 0 step*.png" " -delay 250 step100.png surprise.gif"
-    )  # Using imagemagick.
+    os.system("convert -delay 5 -loop 0 step*.png"
+              " -delay 250 step100.png surprise.gif")  # Using imagemagick.
     os.system("rm step*.png")

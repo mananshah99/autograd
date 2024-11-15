@@ -5,6 +5,7 @@ from autograd.extend import VSpace
 
 
 class ArrayVSpace(VSpace):
+
     def __init__(self, value):
         value = np.asarray(value)
         self.shape = value.shape
@@ -45,7 +46,9 @@ class ComplexArrayVSpace(ArrayVSpace):
         return np.prod(self.shape) * 2
 
     def ones(self):
-        return np.ones(self.shape, dtype=self.dtype) + 1.0j * np.ones(self.shape, dtype=self.dtype)
+        return np.ones(
+            self.shape,
+            dtype=self.dtype) + 1.0j * np.ones(self.shape, dtype=self.dtype)
 
     def standard_basis(self):
         for idxs in np.ndindex(*self.shape):
@@ -55,9 +58,9 @@ class ComplexArrayVSpace(ArrayVSpace):
                 yield vect
 
     def randn(self):
-        return np.array(np.random.randn(*self.shape)).astype(self.dtype) + 1.0j * np.array(
-            np.random.randn(*self.shape)
-        ).astype(self.dtype)
+        return np.array(
+            np.random.randn(*self.shape)).astype(self.dtype) + 1.0j * np.array(
+                np.random.randn(*self.shape)).astype(self.dtype)
 
     def _inner_prod(self, x, y):
         return np.real(np.dot(np.conj(np.ravel(x)), np.ravel(y)))
@@ -66,14 +69,15 @@ class ComplexArrayVSpace(ArrayVSpace):
         return np.conj(x)
 
 
-VSpace.register(np.ndarray, lambda x: ComplexArrayVSpace(x) if np.iscomplexobj(x) else ArrayVSpace(x))
+VSpace.register(
+    np.ndarray, lambda x: ComplexArrayVSpace(x)
+    if np.iscomplexobj(x) else ArrayVSpace(x))
 
 for type_ in [float, np.longdouble, np.float64, np.float32, np.float16]:
     ArrayVSpace.register(type_)
 
 for type_ in [complex, np.clongdouble, np.complex64, np.complex128]:
     ComplexArrayVSpace.register(type_)
-
 
 if np.lib.NumpyVersion(np.__version__) >= "2.0.0":
 

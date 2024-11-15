@@ -15,7 +15,9 @@ check_grads = partial(check_grads, modes=["rev"])
 
 
 def check_symmetric_matrix_grads(fun, **grad_check_kwargs):
+
     def check(*args):
+
         def symmetrize(A):
             L = np.tril(A)
             return (L + T(L)) / 2.0
@@ -35,6 +37,7 @@ def rand_psd(D):
 
 
 def test_inv():
+
     def fun(x):
         return np.linalg.inv(x)
 
@@ -45,6 +48,7 @@ def test_inv():
 
 
 def test_pinv():
+
     def fun(x):
         return np.linalg.pinv(x)
 
@@ -134,6 +138,7 @@ def test_solve_arg1_3d_3d():
 
 
 def test_det():
+
     def fun(x):
         return np.linalg.det(x)
 
@@ -150,6 +155,7 @@ def test_det_3d():
 
 
 def test_slogdet():
+
     def fun(x):
         sign, logdet = np.linalg.slogdet(x)
         return logdet
@@ -162,11 +168,13 @@ def test_slogdet():
 
 def test_slogdet_3d():
     fun = lambda x: np.sum(np.linalg.slogdet(x)[1])
-    mat = np.concatenate([(rand_psd(5) + 5 * np.eye(5))[None, ...] for _ in range(3)])
+    mat = np.concatenate([(rand_psd(5) + 5 * np.eye(5))[None, ...]
+                          for _ in range(3)])
     check_grads(fun)(mat)
 
 
 def test_vector_2norm():
+
     def fun(x):
         return np.linalg.norm(x)
 
@@ -176,6 +184,7 @@ def test_vector_2norm():
 
 
 def test_frobenius_norm():
+
     def fun(x):
         return np.linalg.norm(x)
 
@@ -185,6 +194,7 @@ def test_frobenius_norm():
 
 
 def test_frobenius_norm_axis():
+
     def fun(x):
         return np.linalg.norm(x, axis=(0, 1))
 
@@ -196,6 +206,7 @@ def test_frobenius_norm_axis():
 @pytest.mark.parametrize("ord", range(2, 5))
 @pytest.mark.parametrize("size", [6])
 def test_vector_norm_ord(size, ord):
+
     def fun(x):
         return np.linalg.norm(x, ord=ord)
 
@@ -206,6 +217,7 @@ def test_vector_norm_ord(size, ord):
 @pytest.mark.parametrize("axis", range(3))
 @pytest.mark.parametrize("shape", [(6, 5, 4)])
 def test_norm_axis(shape, axis):
+
     def fun(x):
         return np.linalg.norm(x, axis=axis)
 
@@ -214,6 +226,7 @@ def test_norm_axis(shape, axis):
 
 
 def test_norm_nuclear():
+
     def fun(x):
         return np.linalg.norm(x, ord="nuc")
 
@@ -224,6 +237,7 @@ def test_norm_nuclear():
 
 
 def test_norm_nuclear_axis():
+
     def fun(x):
         return np.linalg.norm(x, ord="nuc", axis=(0, 1))
 
@@ -234,6 +248,7 @@ def test_norm_nuclear_axis():
 
 
 def test_eigvalh_lower():
+
     def fun(x):
         w, v = np.linalg.eigh(x)
         return tuple((w, v))
@@ -244,6 +259,7 @@ def test_eigvalh_lower():
 
 
 def test_eigvalh_upper():
+
     def fun(x):
         w, v = np.linalg.eigh(x, "U")
         return tuple((w, v))
@@ -257,6 +273,7 @@ broadcast_dot_transpose = partial(np.einsum, "...ij,...kj->...ik")
 
 
 def test_eigvalh_lower_broadcasting():
+
     def fun(x):
         w, v = np.linalg.eigh(x)
         return tuple((w, v))
@@ -268,6 +285,7 @@ def test_eigvalh_lower_broadcasting():
 
 
 def test_eigvalh_upper_broadcasting():
+
     def fun(x):
         w, v = np.linalg.eigh(x, "U")
         return tuple((w, v))
@@ -282,6 +300,7 @@ def test_eigvalh_upper_broadcasting():
 # which makes it impossible to compare to numerical derivatives. So we take the
 # absolute value to get rid of that phase.
 def test_eigvalh_lower_complex():
+
     def fun(x):
         w, v = np.linalg.eigh(x)
         return tuple((w, np.abs(v)))
@@ -292,6 +311,7 @@ def test_eigvalh_lower_complex():
 
 
 def test_eigvalh_upper_complex():
+
     def fun(x):
         w, v = np.linalg.eigh(x, "U")
         return tuple((w, np.abs(v)))
@@ -303,6 +323,7 @@ def test_eigvalh_upper_complex():
 
 # Note eigenvalues and eigenvectors for real matrix can still be complex
 def test_eig_real():
+
     def fun(x):
         w, v = np.linalg.eig(x)
         return tuple((np.abs(w), np.abs(v)))
@@ -313,6 +334,7 @@ def test_eig_real():
 
 
 def test_eig_complex():
+
     def fun(x):
         w, v = np.linalg.eig(x)
         return tuple((w, np.abs(v)))
@@ -323,6 +345,7 @@ def test_eig_complex():
 
 
 def test_eig_batched():
+
     def fun(x):
         w, v = np.linalg.eig(x)
         return tuple((w, np.abs(v)))
@@ -345,6 +368,7 @@ def test_cholesky_broadcast():
 
 
 def test_cholesky_reparameterization_trick():
+
     def fun(A):
         rng = np.random.RandomState(0)
         z = np.dot(np.linalg.cholesky(A), rng.randn(A.shape[0]))
@@ -354,6 +378,7 @@ def test_cholesky_reparameterization_trick():
 
 
 def test_svd_wide_2d():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((u, s, v))
@@ -365,6 +390,7 @@ def test_svd_wide_2d():
 
 
 def test_svd_wide_2d_complex():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((np.abs(u), s, np.abs(v)))
@@ -376,6 +402,7 @@ def test_svd_wide_2d_complex():
 
 
 def test_svd_wide_3d():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((u, s, v))
@@ -388,6 +415,7 @@ def test_svd_wide_3d():
 
 
 def test_svd_wide_3d_complex():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((np.abs(u), s, np.abs(v)))
@@ -400,6 +428,7 @@ def test_svd_wide_3d_complex():
 
 
 def test_svd_square_2d():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((u, s, v))
@@ -411,6 +440,7 @@ def test_svd_square_2d():
 
 
 def test_svd_square_2d_complex():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((np.abs(u), s, np.abs(v)))
@@ -422,6 +452,7 @@ def test_svd_square_2d_complex():
 
 
 def test_svd_square_3d():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((u, s, v))
@@ -434,6 +465,7 @@ def test_svd_square_3d():
 
 
 def test_svd_square_3d_complex():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((np.abs(u), s, np.abs(v)))
@@ -446,6 +478,7 @@ def test_svd_square_3d_complex():
 
 
 def test_svd_tall_2d():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((u, s, v))
@@ -457,6 +490,7 @@ def test_svd_tall_2d():
 
 
 def test_svd_tall_2d_complex():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((np.abs(u), s, np.abs(v)))
@@ -468,6 +502,7 @@ def test_svd_tall_2d_complex():
 
 
 def test_svd_tall_3d():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((u, s, v))
@@ -480,6 +515,7 @@ def test_svd_tall_3d():
 
 
 def test_svd_tall_3d_complex():
+
     def fun(x):
         u, s, v = np.linalg.svd(x, full_matrices=False)
         return tuple((np.abs(u), s, np.abs(v)))
@@ -492,6 +528,7 @@ def test_svd_tall_3d_complex():
 
 
 def test_svd_only_s_2d():
+
     def fun(x):
         s = np.linalg.svd(x, full_matrices=False, compute_uv=False)
         return s
@@ -503,6 +540,7 @@ def test_svd_only_s_2d():
 
 
 def test_svd_only_s_2d_complex():
+
     def fun(x):
         s = np.linalg.svd(x, full_matrices=False, compute_uv=False)
         return s
@@ -514,6 +552,7 @@ def test_svd_only_s_2d_complex():
 
 
 def test_svd_only_s_3d():
+
     def fun(x):
         s = np.linalg.svd(x, full_matrices=False, compute_uv=False)
         return s
@@ -526,6 +565,7 @@ def test_svd_only_s_3d():
 
 
 def test_svd_only_s_3d_complex():
+
     def fun(x):
         s = np.linalg.svd(x, full_matrices=False, compute_uv=False)
         return s

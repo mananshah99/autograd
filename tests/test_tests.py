@@ -6,6 +6,7 @@ from autograd.tracer import primitive
 
 
 def test_check_vjp_1st_order_fail():
+
     @primitive
     def foo(x):
         return x * 2.0
@@ -17,6 +18,7 @@ def test_check_vjp_1st_order_fail():
 
 
 def test_check_vjp_2nd_order_fail():
+
     @primitive
     def foo(x):
         return x * 2.0

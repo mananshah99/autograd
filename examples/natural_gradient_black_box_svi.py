@@ -23,7 +23,8 @@ if __name__ == "__main__":
 
     # Build variational objective.
     D = obs_dim * 2  # dimension of our posterior
-    objective, gradient, unpack_params = black_box_variational_inference(log_density, D, num_samples=2000)
+    objective, gradient, unpack_params = black_box_variational_inference(
+        log_density, D, num_samples=2000)
 
     # Define the natural gradient
     #   The natural gradient of the ELBO is the gradient of the elbo,
@@ -46,10 +47,13 @@ if __name__ == "__main__":
     #   is small (which leads to more robust/less chaotic ascent).
     def fisher_diag(lam):
         mu, log_sigma = unpack_params(lam)
-        return np.concatenate([np.exp(-2.0 * log_sigma), np.ones(len(log_sigma)) * 2])
+        return np.concatenate(
+            [np.exp(-2.0 * log_sigma),
+             np.ones(len(log_sigma)) * 2])
 
     # simple! basically free!
-    natural_gradient = lambda lam, i: (1.0 / fisher_diag(lam)) * gradient(lam, i)
+    natural_gradient = lambda lam, i: (1.0 / fisher_diag(lam)) * gradient(
+        lam, i)
 
     # function for keeping track of callback ELBO values (for plotting below)
     def optimize_and_lls(optfun):
@@ -73,13 +77,17 @@ if __name__ == "__main__":
     step_sizes = [0.1, 0.25, 0.5]
     for step_size in step_sizes:
         # optimize with standard gradient + adam
-        optfun = lambda n, init, cb: adam(gradient, init, step_size=step_size, num_iters=n, callback=cb)
+        optfun = lambda n, init, cb: adam(
+            gradient, init, step_size=step_size, num_iters=n, callback=cb)
         standard_lls = optimize_and_lls(optfun)
 
         # optimize with natural gradient + sgd, no momentum
-        optnat = lambda n, init, cb: sgd(
-            natural_gradient, init, step_size=step_size, num_iters=n, callback=cb, mass=0.001
-        )
+        optnat = lambda n, init, cb: sgd(natural_gradient,
+                                         init,
+                                         step_size=step_size,
+                                         num_iters=n,
+                                         callback=cb,
+                                         mass=0.001)
         natural_lls = optimize_and_lls(optnat)
         elbo_lists.append((standard_lls, natural_lls))
 
@@ -95,7 +103,11 @@ if __name__ == "__main__":
             alpha=0.5,
             c=col,
         )
-        plt.plot(np.arange(len(nat_lls)), nat_lls, "-", label="natural (sgd, step-size = %2.2f)" % ss, c=col)
+        plt.plot(np.arange(len(nat_lls)),
+                 nat_lls,
+                 "-",
+                 label="natural (sgd, step-size = %2.2f)" % ss,
+                 c=col)
 
     llrange = natural_lls.max() - natural_lls.min()
     plt.ylim((natural_lls.max() - llrange * 0.1, natural_lls.max() + 10))

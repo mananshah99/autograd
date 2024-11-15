@@ -11,6 +11,7 @@ from autograd import deriv, grad, holomorphic_grad
 
 
 def test_grad():
+
     def fun(x):
         return (x + np.sin(x**2)) * x
 
@@ -18,6 +19,7 @@ def test_grad():
 
 
 def test_deriv():
+
     def fun(x):
         return (x + np.sin(x**2)) * x
 
@@ -25,6 +27,7 @@ def test_deriv():
 
 
 def test_grad_complex_output():
+
     def fun(x):
         return x * (1.0 + 0.2j)
 
@@ -33,6 +36,7 @@ def test_grad_complex_output():
 
 
 def test_holomorphic_grad():
+
     def fun(x):
         return x * (1.0 + 0.2j)
 

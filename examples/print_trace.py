@@ -7,13 +7,16 @@ from autograd.tracer import Node, trace
 
 
 class PrintNode(Node):
+
     def __init__(self, value, fun, args, kwargs, parent_argnums, parents):
         self.varname_generator = parents[0].varname_generator
         self.varname = next(self.varname_generator)
         args_or_vars = list(args)
         for argnum, parent in zip(parent_argnums, parents):
             args_or_vars[argnum] = parent.varname
-        print("{} = {}({}) = {}".format(self.varname, fun.__name__, ",".join(map(str, args_or_vars)), value))
+        print("{} = {}({}) = {}".format(self.varname, fun.__name__,
+                                        ",".join(map(str,
+                                                     args_or_vars)), value))
 
     def initialize_root(self, x):
         self.varname_generator = make_varname_generator()
