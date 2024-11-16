@@ -10,7 +10,6 @@ from .core import (
     defjvp_argnums,
     defvjp,
     defvjp_argnum,
-    defvjp_argnums,
     vspace,
 )
 from .tracer import Box, notrace_primitive, primitive, register_notrace

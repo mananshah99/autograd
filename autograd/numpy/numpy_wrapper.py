@@ -22,6 +22,8 @@ def wrap_intdtype(cls):
 
 
 def wrap_namespace(old, new):
+    r"""Wrap the entire numpy namespace. By default, wrap functions as
+    primitives."""
     unchanged_types = {float, int, type(None), type}
     int_types = {_np.int8, _np.int16, _np.int32, _np.int64, _np.integer}
     for name, obj in old.items():

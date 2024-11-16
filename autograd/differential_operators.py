@@ -10,11 +10,11 @@ import warnings
 
 import autograd.numpy as np
 
-from .builtins import tuple as atuple
-from .core import make_jvp as _make_jvp
-from .core import make_vjp as _make_vjp
-from .extend import defvjp_argnum, primitive, vspace
-from .wrap_util import unary_to_nary
+from autograd.builtins import tuple as atuple
+from autograd.core import make_jvp as _make_jvp
+from autograd.core import make_vjp as _make_vjp
+from autograd.extend import defvjp_argnum, primitive, vspace
+from autograd.wrap_util import unary_to_nary
 
 make_vjp = unary_to_nary(_make_vjp)
 make_jvp = unary_to_nary(_make_jvp)
@@ -22,12 +22,14 @@ make_jvp = unary_to_nary(_make_jvp)
 
 @unary_to_nary
 def grad(fun, x):
-    """
-    Returns a function which computes the gradient of `fun` with respect to
-    positional argument number `argnum`. The returned function takes the same
-    arguments as `fun`, but returns the gradient instead. The function `fun`
-    should be scalar-valued. The gradient has the same type as the argument."""
-    print('calling grad with f ', fun, ' and x ', x)
+    r"""Returns a function which computes the gradient of `fun` with respect
+    to positional argument number `argnum`. The returned function takes the
+    same arguments as `fun`, but returns the gradient instead.
+
+    The function `fun` should be scalar-valued. The gradient has the same type
+    as the argument."""
+
+    # Construct a vector-jacobian product 
     vjp, ans = _make_vjp(fun, x)
     if not vspace(ans).size == 1:
         raise TypeError("Grad only applies to real scalar-output functions. "

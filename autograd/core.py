@@ -1,5 +1,6 @@
 from functools import reduce
 from itertools import count
+from typing import Callable, Iterable
 from typing_extensions import override
 
 from .tracer import Box, Node, getval, isbox, primitive, toposort, trace
@@ -52,12 +53,7 @@ class VJPNode(Node):
         self.vjp = lambda g: ()
 
 
-primitive_vjps = {}
-
-
-def defvjp_argnums(fun, vjpmaker):
-    primitive_vjps[fun] = vjpmaker
-
+primitive_vjps: dict[Callable, Callable] = {}
 
 def defvjp_argnum(fun, vjpmaker):
 
@@ -65,17 +61,35 @@ def defvjp_argnum(fun, vjpmaker):
         vjps = [vjpmaker(argnum, *args) for argnum in argnums]
         return lambda g: (vjp(g) for vjp in vjps)
 
-    defvjp_argnums(fun, vjp_argnums)
+    primitive_vjps[fun] = vjp_argnums
 
 
 def defvjp(fun, *vjpmakers, **kwargs):
-    argnums = kwargs.get("argnums", count())
-    vjps_dict = {
+    r"""Define and register a vector-jacobian product for a function, to be
+    used in the function's backward pass.
+
+    Function `fun` is the function for which we are defining a VJP. Function
+    `vjpmaker_i` is a funciton that returns the VJP of `fun` with respect
+    to the i-th argument of `fun`. `kwargs` are additional keyword
+    arguments to be passed to `defvjp`.
+    """
+    # count is an iterator 1..inf:
+    argnums: Iterable = kwargs.get("argnums", count())  
+
+    # Map argnum to its corresponding VJP. `translate_vjp` also does some
+    # handling for the case where the VJP is not provided... that's not
+    # so important.
+    vjps_dict: dict[int, Callable] = {
         argnum: translate_vjp(vjpmaker, fun, argnum)
         for argnum, vjpmaker in zip(argnums, vjpmakers)
     }
 
     def vjp_argnums(argnums, ans, args, kwargs):
+        r"""Defines a VJP function corresponding to `fun`, to be associated
+        with `fun` in the `primitive_vjps` mapping. The returned function
+        accepts an incoming gradient `g` (think of this as dy/df) and
+        passes this as input to each vjp for each argument."""
+
         L = len(argnums)
         # These first two cases are just optimizations
         if L == 1:
@@ -104,7 +118,20 @@ def defvjp(fun, *vjpmakers, **kwargs):
             ]
             return lambda g: (vjp(g) for vjp in vjps)
 
-    defvjp_argnums(fun, vjp_argnums)
+    # Register a primitive VJP for function `fun`.
+    #
+    #   Signature of the registered function:
+    #       argnums (bound to the value in the closure)
+    #       ans: the output of function `fun`
+    #       *args: the arguments of function `fun`
+    #       **kwargs: additional keyword arguments
+    #
+    #   The registered function returns:
+    #       A function that maps the backpropagating gradient
+    #       `g` to its corresponding vector-jacobian product
+    #       for every argument number: that is, a tuple where
+    #       element i is vjp_i(g)
+    primitive_vjps[fun] = vjp_argnums
 
 
 def translate_vjp(vjpfun, fun, argnum):

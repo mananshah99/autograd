@@ -1,8 +1,8 @@
 import operator
-from typing import Any
+from typing import Any, Iterable
 
 
-def subvals(x, ivs: list[tuple[int, Any]]):
+def subvals(x: Iterable, ivs: list[tuple[int, Any]]):
     r"""Scatters `ivs` (a list of tuples) into `x`."""
     x_ = list(x)
     for i, v in ivs:
